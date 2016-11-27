@@ -1,0 +1,79 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav" id="side-menu">
+
+<li class="nav-header">
+    <div class="dropdown profile-element">
+        <span>
+            <img alt="image" class="img-circle" width="48" height="48" src="/static/img/root.png" />
+        </span>
+        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+            <span class="clear">
+                <span class="block m-t-xs">
+                    <strong class="font-bold">{{ username }}  <span style="color: #8095a8"></span></strong>
+                </span>
+                <span class="text-muted text-xs block">
+                    尊敬的会员 <b class="caret"></b>
+                </span>
+            </span>
+        </a>
+        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+            <li><a value="/user/profile/?id=12" class="iframe_user">个人信息</a></li>
+            <li><a href="/user/update/">修改信息</a></li>
+
+
+
+
+
+
+
+            <li class="divider"></li>
+            <li><a href="/logout/">注销</a></li>
+        </ul>
+    </div>
+
+    <div class="logo-element">
+        JS+
+    </div>
+</li>
+<script>
+    $(".iframe_user").on('click', function(){
+        var url= $(this).attr("value");
+        layer.open({
+            type: 2,
+            title: '个人信息',
+            maxmin: true,
+            shift: 'top',
+            border: [2, 0.3, '#1AB394'],
+            shade: [0.5, '#000000'],
+            shadeClose: true,
+            area : ['800px' , '600px'],
+            content: url
+        });
+    });
+</script>
+
+            <li id="index">
+               <a href="/"><i class="fa fa-group"></i> <span class="nav-label">项目构建</span><span class="label label-info pull-right"></span></a>
+            </li>
+			<li id="index">
+               <a href="/"><i class="fa fa-dashboard"></i> <span class="nav-label">项目列表</span><span class="label label-info pull-right"></span></a>
+            </li>
+			<li id="index">
+               <a href="/"><i class="fa fa-dashboard"></i> <span class="nav-label">项目部署</span><span class="label label-info pull-right"></span></a>
+            </li>
+			<li id="index">
+               <a href="/"><i class="fa fa-dashboard"></i> <span class="nav-label">项目回退</span><span class="label label-info pull-right"></span></a>
+            </li>   
+			
+        
+            <li id="setting">
+                   <a href="/setting"><i class="fa fa-gears"></i> <span class="nav-label">设置</span><span class="label label-info pull-right"></span></a>
+            </li>
+            <li class="special_link">
+                <a href="http://www.enjoyfin.com/" target="_blank"><i class="fa fa-database"></i> <span class="nav-label">访问官网</span></a>
+            </li>
+        </ul>
+
+    </div>
+</nav>

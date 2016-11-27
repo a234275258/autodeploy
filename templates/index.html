@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>{{ cname }}</title>
+
+    <link rel="shortcut icon" href="/static/img/facio.ico" type="image/x-icon">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">
+<link href="/static/css/animate.css" rel="stylesheet">
+<link href="/static/css/style.css" rel="stylesheet">
+<link href="/static/css/colorbox.css" rel="stylesheet">
+<link href="/static/css/vaildator/jquery.validator.css" rel="stylesheet">
+<link href="/static/css/magnific/magnific-popup.css" rel="stylesheet">
+<link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
+<link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
+<link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
+    <script src="/static/js/jquery-2.1.1.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/base.js"></script>
+
+<!-- pop windows -->
+<script src="/static/js/jquery.colorbox.js"></script>
+
+<!-- validator js -->
+<script src="/static/js/validator/jquery.validator.js"></script>
+<script src="/static/js/validator/zh_CN.js"></script>
+<script src="/static/js/datapicker/bootstrap-datepicker.js"></script>
+
+
+
+
+    <script src="/static/js/jquery.shiftcheckbox.js"></script>
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+		{% include 'left.html' %}
+
+
+
+
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+
+
+			{% include 'bar_header.html' %}
+
+            </div>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-10">
+        <h2>查看用户</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="/">仪表盘</a>
+            </li>
+            <li>
+
+                <a>用户管理</a>
+
+            </li>
+
+            <li class="active">
+                <strong>用户列表</strong>
+            </li>
+
+        </ol>
+    </div>
+    <div class="col-sm-2">
+    </div>
+</div>
+
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5> 查看用户 </h5>
+                    <div class="ibox-tools">
+                        <a class="collapise-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <div class="">
+                        <a href="/juser/user/add/" class="btn btn-sm btn-primary "> 添加用户 </a>
+                        <a id="del_btn" class="btn btn-sm btn-danger "> 删除所选 </a>
+                        <form id="search_form" method="get" action="" class="pull-right mail-search">
+                            <div class="input-group">
+                                <input type="text" class="form-control input-sm" id="search_input" name="keyword" placeholder="Search">
+                                <div class="input-group-btn">
+                                    <button id='search_btn' type="submit" class="btn btn-sm btn-primary">
+                                        -搜索-
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <table class="table table-striped table-bordered table-hover " id="editable" >
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    <input type="checkbox" id="check_all" onclick="checkAll('check_all', 'checked')">
+                                </th>
+                                <th class="text-center">用户名</th>
+                                <th class="text-center">姓名</th>
+                                <th class="text-center">小组</th>
+                                <th class="text-center">权限</th>
+                                <th class="text-center">主机数量</th>
+                                <th class="text-center">激活</th>
+                                <th class="text-center">下载密钥</th>
+                                <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="12">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=12">admin</a></td>
+                                <td class="text-center"> admin </td>
+                                <td class="text-center" title="">  </td>
+                                <td class="text-center"> 超级管理员</td>
+                                <th class="text-center">0</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('admin','/juser/key/gen/?uuid=MayBeYouAreTheFirstUser')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=12" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="MayBeYouAreTheFirstUser" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=12" class="btn btn-xs btn-danger del  disabled ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="46">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=46">administrator</a></td>
+                                <td class="text-center"> administrator </td>
+                                <td class="text-center" title=" 运维组 "> 运维组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">20</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('administrator','/juser/key/gen/?uuid=2f753a5115384860a1bcdb9d5b3017f5')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=46" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="2f753a5115384860a1bcdb9d5b3017f5" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=46" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="23">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=23">chenyanghong</a></td>
+                                <td class="text-center"> 陈扬鸿 </td>
+                                <td class="text-center" title=" 运维组 "> 运维组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">20</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('chenyanghong','/juser/key/gen/?uuid=1638afcffaeb4e3d9652bace344402b0')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=23" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="1638afcffaeb4e3d9652bace344402b0" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=23" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="36">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=36">fujimin</a></td>
+                                <td class="text-center"> 付继敏 </td>
+                                <td class="text-center" title=" 渠道组 "> 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">8</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('fujimin','/juser/key/gen/?uuid=4205fec38bd34909bccd409c62c298f7')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=36" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="4205fec38bd34909bccd409c62c298f7" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=36" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="37">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=37">fuzhijiang</a></td>
+                                <td class="text-center"> 付之将 </td>
+                                <td class="text-center" title=" 渠道组 "> 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">8</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('fuzhijiang','/juser/key/gen/?uuid=a1fe0808f90143fa89df9ced5be1d45f')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=37" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="a1fe0808f90143fa89df9ced5be1d45f" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=37" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="26">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=26">kangjie</a></td>
+                                <td class="text-center"> 康杰 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('kangjie','/juser/key/gen/?uuid=6097bcc14a0c4b4cb6d045122a371937')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=26" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="6097bcc14a0c4b4cb6d045122a371937" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=26" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="28">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=28">leifei</a></td>
+                                <td class="text-center"> 雷斐 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('leifei','/juser/key/gen/?uuid=cea3f4557b5f4902b43f9795ca31728e')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=28" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="cea3f4557b5f4902b43f9795ca31728e" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=28" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="29">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=29">liujianxiong</a></td>
+                                <td class="text-center"> 刘建雄 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('liujianxiong','/juser/key/gen/?uuid=7ac5a506b61540fe8bb74fa7c9da60d4')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=29" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="7ac5a506b61540fe8bb74fa7c9da60d4" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=29" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="30">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=30">liuyi</a></td>
+                                <td class="text-center"> 刘毅 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('liuyi','/juser/key/gen/?uuid=4c797d18bb3f4bffb13018991d2aa928')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=30" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="4c797d18bb3f4bffb13018991d2aa928" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=30" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="38">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=38">longyucen</a></td>
+                                <td class="text-center"> 龙禹岺 </td>
+                                <td class="text-center" title=" 运维组 "> 运维组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">20</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('longyucen','/juser/key/gen/?uuid=563dbd6f30074387bcca0fd7b664685c')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=38" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="563dbd6f30074387bcca0fd7b664685c" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=38" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="45">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=45">luchengbo</a></td>
+                                <td class="text-center"> 卢承波 </td>
+                                <td class="text-center" title=" 运维组 "> 运维组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">20</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a  href="/juser/key/down/?uuid=e71bd69c1e384c1ea0be56fdf5c13656" >下载</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=45" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="e71bd69c1e384c1ea0be56fdf5c13656" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=45" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="34">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=34">ouyangzhen</a></td>
+                                <td class="text-center"> 欧阳贞 </td>
+                                <td class="text-center" title=" 渠道组 "> 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">8</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('ouyangzhen','/juser/key/gen/?uuid=3ce355cc615042a8ac6ec4e3b15690ba')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=34" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="3ce355cc615042a8ac6ec4e3b15690ba" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=34" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="31">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=31">pengwei</a></td>
+                                <td class="text-center"> 彭为 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('pengwei','/juser/key/gen/?uuid=3806cdb70d5740928f394c4877b009a6')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=31" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="3806cdb70d5740928f394c4877b009a6" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=31" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="47">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=47">pengzhi</a></td>
+                                <td class="text-center"> 彭志 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('pengzhi','/juser/key/gen/?uuid=c35df702c013424ea1fbf3e69b356550')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=47" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="c35df702c013424ea1fbf3e69b356550" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=47" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="43">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=43">tanjingyan</a></td>
+                                <td class="text-center"> 谭晶焱 </td>
+                                <td class="text-center" title=" 后台组  渠道组 "> 后台组 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">20</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('tanjingyan','/juser/key/gen/?uuid=7b9ff687d5b04140bd76b6fe957904aa')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=43" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="7b9ff687d5b04140bd76b6fe957904aa" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=43" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="32">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=32">taoye</a></td>
+                                <td class="text-center"> 陶冶 </td>
+                                <td class="text-center" title=" 后台组 "> 后台组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">10</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a  href="/juser/key/down/?uuid=f01a178a7c5142e0b99bc38d3f37aa02" >下载</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=32" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="f01a178a7c5142e0b99bc38d3f37aa02" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=32" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="25">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=25">wangxiang</a></td>
+                                <td class="text-center"> 汪祥 </td>
+                                <td class="text-center" title=" 运维组 "> 运维组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">20</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('wangxiang','/juser/key/gen/?uuid=d2032cd602df4ce3b399cf8fb12fde92')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=25" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="d2032cd602df4ce3b399cf8fb12fde92" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=25" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="48">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=48">xiaote</a></td>
+                                <td class="text-center"> 肖特 </td>
+                                <td class="text-center" title=" 渠道组 "> 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">7</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('xiaote','/juser/key/gen/?uuid=6eeff4444db74af3bb29758d7a390962')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=48" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="6eeff4444db74af3bb29758d7a390962" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=48" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="44">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=44">xuyuelei</a></td>
+                                <td class="text-center"> 许跃磊 </td>
+                                <td class="text-center" title=" 渠道组 "> 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">1</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('xuyuelei','/juser/key/gen/?uuid=e85e4edfcbd04f5382ae3339384d2f2d')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=44" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="e85e4edfcbd04f5382ae3339384d2f2d" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=44" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                            <tr class="gradeX">
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="35">
+                                </td>
+                                <td class="text-center"><a href="/juser/user/detail/?id=35">zhoulan</a></td>
+                                <td class="text-center"> 周岚 </td>
+                                <td class="text-center" title=" 渠道组 "> 渠道组 </td>
+                                <td class="text-center"> 普通用户</td>
+                                <th class="text-center">8</th>
+                                <td class="text-center">是</td>
+                                <td class="text-center">
+
+                                        <a href="#" onclick="genSSH('zhoulan','/juser/key/gen/?uuid=4f8314c206dc4d88ad5d20f43d0bd9f2')">NoKey GenOne?</a>
+
+                                </td>
+                                <td class="text-center">
+                                    <a href="/juser/user/edit/?id=35" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="4f8314c206dc4d88ad5d20f43d0bd9f2" class="btn btn-xs btn-warning email">Email</a>
+                                    <a value="/juser/user/del/?id=35" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="dataTables_info" id="editable_info" role="status" aria-live="polite">
+                                Showing 1 to 20 of 21 entries
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+    <div class="dataTables_paginate paging_simple_numbers" id="editable_paginate">
+        <ul class="pagination" style="margin-top: 0; float: right">
+
+                <li class="paginate_button previous disabled" aria-controls="editable" tabindex="0" id="editable_previous">
+                     <a class="page" href="#">Previous</a>
+                </li>
+
+
+
+
+                    <li class="paginate_button active"  aria-controls="editable" tabindex="0"><a class="page" href="?page=1"  title="第1页">1</a></li>
+
+
+
+                    <li class="paginate_button" aria-controls="editable" tabindex="0"><a class="page" href="?page=2"  title="第2页">2</a></li>
+
+
+
+
+                <li class="paginate_button next disabled" aria-controls="editable" tabindex="0" id="editable_next">
+                    <a class="page" href="#">Next</a>
+                </li>
+
+        </ul>
+    </div>
+</div>
+<script>
+    function sleep(n) { //n表示的毫秒数
+            var start = new Date().getTime();
+            while (true) if (new Date().getTime() - start > n) break;
+        }
+
+    $(document).ready(function(){
+        $('.page').click(function(){
+            var searchStr = location.search;
+            var old_href = $(this).attr('href').replace('?', '');
+            var searchArray = searchStr.split('&');
+
+            if (searchStr == ''){
+                searchStr = '?page=1'
+            }
+
+            if (searchStr.indexOf('page')>=0){
+                searchArray.pop();
+            }
+
+            searchArray.push(old_href);
+            if (searchArray.length > 1) {
+                $(this).attr('href', searchArray.join('&'));
+            }
+
+        })
+    });
+
+</script>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+	{% include 'foot.html' %}
+
+        </div>
+    </div>
+
+</body>
+    <!-- Mainly scripts -->
+<script src="/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/static/js/bootstrap-dialog.js"></script>
+<script src="/static/js/mindmup-editabletable.js"></script>
+<script src="/static/js/plugins/fullcalendar/moment.min.js"></script>
+<script src="/static/js/plugins/fullcalendar/fullcalendar.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="/static/js/inspinia.js"></script>
+<script src="/static/js/plugins/pace/pace.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/demo/peity-demo.js"></script>
+
+<script src="/static/js/base.js"></script>
+
+<!-- pop windows layer-->
+<script src="/static/js/layer/layer.js"></script>
+
+<!-- highcharts -->
+<script src="/static/js/highcharts/highcharts.js"></script>
+
+
+<script src="/static/js/dropzone/dropzone.js"></script>
+<!-- active menu -->
+<script>
+    var url_array = document.location.pathname.split("/");
+    s1 = url_array[1];
+    s2 = url_array[2];
+    if (s1 == ''){
+        $('#index').addClass('active')
+    } else {
+        $("#"+s1).addClass('active');
+        $('#'+s1+' .'+s2).addClass('active');
+    }
+</script>
+
+
+<script>
+    $(document).ready(function(){
+        $('.del').click(function(){
+            var row = $(this).closest('tr');
+            if (confirm("确定删除")) {
+            $.get(
+                    $(this).attr('value'),
+                    {},
+                    function(data){
+                        row.remove();
+                        alert(data);
+                    }
+            )}
+        });
+
+        $('#del_btn').click(function(){
+            var check_array = [];
+            if (confirm("确定删除")) {
+                $(".gradeX input:checked").each(function() {
+                    check_array.push($(this).attr("value"))
+                });
+                console.log(check_array.join(","));
+                $.post("/juser/user/del/",
+                        {id: check_array.join(",")},
+                        function(data){
+                            $(".gradeX input:checked").closest("tr").remove();
+                            alert(data);
+                        }
+                )
+            }
+
+        });
+
+        $('.email').click(function(){
+            $.get('/juser/mail/retry/?uuid=' + $(this).attr('value'),
+                    {},
+                    function(data){
+                        alert(data)
+                    }
+            )
+        });
+        $("tbody tr").shiftcheckbox({
+            checkboxSelector: 'input:checkbox',
+            selectAll: $('#select_all'),
+            ignoreClick: 'a'
+        });
+        $('.shiftCheckbox').shiftcheckbox();
+    });
+function genSSH(username, url) {
+    if (confirm('Are you sure to gen a sshkey for user ' + username)) {
+        $.get(url, function (data) {
+            alert(data);
+            location.reload()
+        })
+    }
+}
+</script>
+
+</html>
