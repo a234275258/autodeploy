@@ -1,8 +1,14 @@
 # coding: utf-8
-from django.http import HttpResponseRedirect
+from django.db import connection
+from autodeploy.settings import logger
+from autodeploy.settings import DBHOST
 
+# 检测数据库是否正常
+def check_db():
+    try:
+        conn = connection.cursor()  # 检测数据库是正常
+        return 1
+    except:
+        logger.warning('连接'+str(DBHOST)+'数据库错误')
 
-def is_login(request):  # 检测用户是否登录
-    if request.session.get('username', False):  # 如果已登录,直接跳转
-        response = HttpResponseRedirect('/index/')
-        return response
+        return 0

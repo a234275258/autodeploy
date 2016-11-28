@@ -1,4 +1,4 @@
-#coding:utf-8
+# coding:utf-8
 """
 Django settings for autodeploy project.
 
@@ -13,13 +13,20 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 import os
 import ConfigParser
+import logging.config
+
+logging.config.fileConfig("logger.conf")  # 日志配制文件
+logger = logging.getLogger("prodution")  # 取日志标签，可选为development,prodution
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 config = ConfigParser.ConfigParser()
-config.read(os.path.join(BASE_DIR, 'autodeploy.conf'))   #读配置文件
-TITLE = config.get('base', 'cname')   #网站标题
+config.read(os.path.join(BASE_DIR, 'autodeploy.conf'))  # 读配置文件
+TITLE = config.get('base', 'cname')  # 网站标题
+DBHOST = config.get('db', 'host')    # 数据库服务器IP
 
+ldapconn = config.get('ldap', 'ldapconn')  # ldap服务器
+basedn = config.get('ldap', 'basedn')    # basedn
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -33,7 +40,6 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -62,7 +68,6 @@ ROOT_URLCONF = 'autodeploy.urls'
 
 WSGI_APPLICATION = 'autodeploy.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
@@ -77,7 +82,7 @@ WSGI_APPLICATION = 'autodeploy.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '10.200.11.220',
+        'HOST': '172.19.20.116',
         'USER': 'autodeploy',
         'PASSWORD': '123456',
         'PORT': 3306,
@@ -98,10 +103,9 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-TEMPLATE_DIRS = (os.path.join(BASE_DIR,  'templates'),)
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
