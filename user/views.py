@@ -60,7 +60,7 @@ def checklogin(request):  # 登录检测
             else:
                 return HttpResponse(message % '数据库连接失败')
         except:
-            logger.warning('连接'+ldapconn+'服务器连接失败')
+            logger.error('连接'+ldapconn+'服务器连接失败')
             return HttpResponse(message % 'ldap服务器连接失败')
         return HttpResponse(message % '用户名密码错误')
     elif request.method == "GET":

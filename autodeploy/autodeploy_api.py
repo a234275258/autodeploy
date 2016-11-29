@@ -9,6 +9,5 @@ def check_db():
         conn = connection.cursor()  # 检测数据库是正常
         return 1
     except:
-        logger.warning('连接'+str(DBHOST)+'数据库错误')
-
+        logger.error('连接'+str(DBHOST)+'数据库错误')
         return 0
