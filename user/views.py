@@ -4,7 +4,7 @@ from autodeploy.settings import TITLE, ldapconn, basedn
 from autodeploy.settings import logger
 from django.http import HttpResponse, HttpResponseRedirect
 from user.models import check_user, add_user, get_username, update_user
-from autodeploy.autodeploy_api import check_db
+from autodeploy.autodeploy_api import check_db, dbcheckuser, get_one
 import ldap
 import hashlib
 
@@ -42,27 +42,36 @@ def is_username(username, password, email='test@enjoyfin.com', valid=1):  # 检�
 
 def checklogin(request):  # 登录检测
     if request.method == "POST":
+        username = request.POST['username'].encode('utf-8')
+        password = request.POST['password'].encode('utf-8')
         try:
-            username = request.POST['username'].encode('utf-8')
-            password = request.POST['password'].encode('utf-8')
             udn = "uid=" + username + "," + basedn
             conn = ldap.initialize(ldapconn)
             try:
                 conn.simple_bind_s(udn, password)
-            except:
-                return HttpResponse(message % '用户名或密码不存在')
-            if check_db():
+                if not check_db():  # 检测数据库是否正常,前提条件是ldap已成功认证
+                    return HttpResponse(message % '数据库连接失败')
                 is_username(username, password)  # 检测用户并添加用户，这里可以忽略函数返回值
                 request.session['username'] = username  # 设置session
                 request.session.set_expiry(3600)
                 response = HttpResponseRedirect('/index/')
                 return response
-            else:
-                return HttpResponse(message % '数据库连接失败')
+            except:
+                return HttpResponse(message % '用户名或密码不存在')
         except:
-            logger.error('连接'+ldapconn+'服务器连接失败')
-            return HttpResponse(message % 'ldap服务器连接失败')
-        return HttpResponse(message % '用户名密码错误')
+            logger.error('连接' + ldapconn + '服务器连接失败')
+            temp = hashlib.md5()
+            temp.update(password)
+            if not dbcheckuser(username, temp.hexdigest()):  # ldap连接错误，进行数据库认证
+                return HttpResponse(message % '用户名或密码不存在')
+
+            request.session['username'] = username  # 设置session
+            request.session.set_expiry(3600)
+            response = HttpResponseRedirect('/index/')
+            return response
+
+            #return HttpResponse(message % 'ldap服务器连接失败')
+        return HttpResponse(message % '用户名密码错误')  # 如果都没有通过直接返回用户名密码错误
     elif request.method == "GET":
         return HttpResponse(message % '此网页不支持GET方法')
 
@@ -98,14 +107,20 @@ def user_edit(request):  # 修改用户
 
     if request.method == 'GET':
         geturl_username = request.GET.get('username', '')  # 获取用户名
-        if not geturl_username:
+        if not geturl_username and (not currusername):
             response = HttpResponseRedirect('/index/')  # 没有获取到就返回主页
             return response
         else:
-            userinfo = get_username(geturl_username)
+            if geturl_username:
+                userinfo = get_username(geturl_username)
+            else:
+                userinfo = get_username(currusername)
             if userinfo:
                 email = userinfo.email
-                return render(request, 'eidtuser.html', {'cname': cname, 'username': geturl_username, 'email': email})
+                if geturl_username:
+                    return render(request, 'eidtuser.html', {'cname': cname, 'username': geturl_username, 'email': email})
+                else:
+                    return render(request, 'eidtuser.html', {'cname': cname, 'username': currusername, 'email': email})
             else:
                 return HttpResponse(message % '用户不存在')
     else:  # post方法
@@ -133,5 +148,19 @@ def user_del():
     pass
 
 
-def user_detail():
-    pass
+# 用户详细信息
+def user_detail(request):
+    username = request.GET.get('username', '')
+    if username:
+        recordlist = get_one(username)
+        id = recordlist.id
+        username =  recordlist.username
+        email = recordlist.email
+        vaild = recordlist.vaild
+        logincount = recordlist.logincount
+        lastlogin = recordlist.lastlogin
+        return render(request, "userdetail.html", locals())
+    else:
+        response = HttpResponseRedirect('/index/')
+        return response
+

@@ -18,8 +18,8 @@
             </span>
         </a>
         <ul class="dropdown-menu animated fadeInRight m-t-xs">
-            <li><a value="/user/profile/?id=12" class="iframe_user">个人信息</a></li>
-            <li><a href="/user/update/">修改信息</a></li>
+            <li><a value="/user/user_detail/?username={{ username }}" class="iframe_user">个人信息</a></li>
+            <li><a href="/user/edit/">修改信息</a></li>
 
 
 
@@ -52,7 +52,9 @@
         });
     });
 </script>
-
+            <li id="index">
+               <a href="/user/add/"><i class="fa fa-group"></i> <span class="nav-label">用户添加</span><span class="label label-info pull-right"></span></a>
+            </li>
             <li id="index">
                <a href="/"><i class="fa fa-group"></i> <span class="nav-label">项目构建</span><span class="label label-info pull-right"></span></a>
             </li>

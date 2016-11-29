@@ -1,26 +1,29 @@
-#coding:utf-8
+# coding:utf-8
 from django.db import models
 import time
 
+
 # Create your models here.
 
+
 class admin(models.Model):
-    id = models.AutoField(primary_key=True, null=False, verbose_name="自增ID")   # ID字段
-    username = models.CharField(max_length=50, null=False, blank=False, unique=True, verbose_name="用户名")   # 用户名
-    password = models.CharField(max_length=32, verbose_name="密码")           # 密码
-    email = models.EmailField(verbose_name="邮箱")                          # 邮箱
-    vaild = models.IntegerField(null=True,default=1, verbose_name="是否有效")     # 帐号是否有效,1为正常，0为锁定
-    logincount = models.PositiveIntegerField(null=False, default=0, verbose_name="登陆次数") # 登录次数
-    lastlogin = models.DateTimeField(verbose_name="最后一次登录时间")     # 最后登录时间
+    id = models.AutoField(primary_key=True, null=False, verbose_name="自增ID")  # ID字段
+    username = models.CharField(max_length=50, null=False, blank=False, unique=True, verbose_name="用户名")  # 用户名
+    password = models.CharField(max_length=32, verbose_name="密码")  # 密码
+    email = models.EmailField(verbose_name="邮箱")  # 邮箱
+    vaild = models.IntegerField(null=True, default=1, verbose_name="是否有效")  # 帐号是否有效,1为正常，0为锁定
+    logincount = models.PositiveIntegerField(null=False, default=0, verbose_name="登陆次数")  # 登录次数
+    lastlogin = models.DateTimeField(verbose_name="最后一次登录时间")  # 最后登录时间
 
     def __str__(self):
-        return "%s %s" %(username, password)
+        return "%s %s" % (username, password)
+
     class Meta:
         db_table = 'admin'
         verbose_name = "用户表"
 
 
-def check_user(username):    # 判断用户是否已存在
+def check_user(username):  # 判断用户是否已存在
     recordlist = admin.objects.filter(username=username)
     if recordlist:
         recordlist = admin.objects.get(username=username)
@@ -31,15 +34,16 @@ def check_user(username):    # 判断用户是否已存在
         return 0
 
 
-def add_user(username, password, email='test@enjoyfin.com', vaild=1): #添加用户
+def add_user(username, password, email='test@enjoyfin.com', vaild=1):  # 添加用户
     try:
-        admin.objects.create(username=username, password=password, email=email, vaild=vaild, logincount=0, lastlogin=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())) )
+        admin.objects.create(username=username, password=password, email=email, vaild=vaild, logincount=0,
+                             lastlogin=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         return 1
     except:
         return 0
 
 
-def update_user(username, password, email, vaild): # 更新用户
+def update_user(username, password, email, vaild):  # 更新用户
     try:
         obj = admin.objects.get(username=username)
         if password == '':
@@ -61,5 +65,3 @@ def get_username(username):  # 获取用户数据
         return admin.objects.get(username=username)
     except:
         return 0
-
-

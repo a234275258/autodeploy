@@ -140,9 +140,9 @@
                                 <label for="email" class="col-sm-2 control-label">Email<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
                                 {% if email %}
-                                    <input id="email" name="email" type="email" placeholder="test@enjoyfin.com" class="form-control" >
+                                    <input id="email" name="email" type="email" placeholder="test@enjoyfin.com"  value="{{ email }}"  class="form-control" >
                                 {% else %}
-                                    <input id="email" name="email" type="email" placeholder="test@enjoyfin.com" value="{{ email }}" class="form-control" >
+                                    <input id="email" name="email" type="email" placeholder="test@enjoyfin.com" class="form-control" >
                                 {% endif %}
                                 </div>
                             </div>

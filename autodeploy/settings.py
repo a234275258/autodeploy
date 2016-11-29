@@ -26,7 +26,10 @@ TITLE = config.get('base', 'cname')  # 网站标题
 DBHOST = config.get('db', 'host')    # 数据库服务器IP
 
 ldapconn = config.get('ldap', 'ldapconn')  # ldap服务器
+ldappassword = config.get('ldap', 'ldappassword')    # ldappassword
 basedn = config.get('ldap', 'basedn')    # basedn
+basecn = config.get('ldap', 'ldapcn')    # ldapcn
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
