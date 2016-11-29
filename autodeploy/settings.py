@@ -28,7 +28,7 @@ DBHOST = config.get('db', 'host')    # 数据库服务器IP
 ldapconn = config.get('ldap', 'ldapconn')  # ldap服务器
 ldappassword = config.get('ldap', 'ldappassword')    # ldappassword
 basedn = config.get('ldap', 'basedn')    # basedn
-basecn = config.get('ldap', 'ldapcn')    # ldapcn
+ldapcn = config.get('ldap', 'ldapcn')    # ldapcn
 
 
 # Quick-start development settings - unsuitable for production

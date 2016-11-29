@@ -13,7 +13,12 @@
                     <strong class="font-bold">{{ username }}  <span style="color: #8095a8"></span></strong>
                 </span>
                 <span class="text-muted text-xs block">
-                    尊敬的会员 <b class="caret"></b>
+                    {% if isadmin == 1 %}
+                    管理员
+                    {% else %}
+                    普通会员
+                    {% endif %}
+                    <b class="caret"></b>
                 </span>
             </span>
         </a>

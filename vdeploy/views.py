@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 def index(request):
     cname = TITLE
     username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if username:
         # return render(request, 'index.html', {'username': usersession})
         return render(request, 'index.html', locals())
@@ -19,6 +20,7 @@ def index(request):
 def logout(request): # 退出
     try:
         del request.session['username']
+        del request.session['isadmin']
     except:
         pass
     response = HttpResponseRedirect('/login/')

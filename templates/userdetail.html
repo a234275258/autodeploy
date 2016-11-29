@@ -32,7 +32,7 @@
                             <tr>
                                 <td class="text-center" width="120">ID</td>
                                 <td class="text-center">用户名</td>
-                                <td class="text-center">密码</td>
+                                <td class="text-center">是否为管理员</td>
                                 <td class="text-center">Email</td>
                                 <td class="text-center">是否有效</td>
                             </tr>
@@ -41,7 +41,12 @@
                         <tr class="gradeX">
                             <td class="text-center">{{ id }}</td>
                             <td class="text-center">{{ username }}</td>
-                            <td class="text-center">*</td>
+                            <td class="text-center">
+                                {% if isadmin %}
+                                 是
+                                {% else %}
+                                 否
+                                {%endif%}</td>
                             <td class="text-center">{{ email }}</td>
                             <td class="text-center">
                                 {% if vaild %}
