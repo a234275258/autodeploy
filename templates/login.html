@@ -21,7 +21,7 @@
             
             <h2><font color="#FFFF00">欢迎使用{{ cname }}</font></h2>
             <form class="m-t" role="form" method="post" action="/checklogin/">
-                {% csrf_token %}
+
                 <div class="form-group">
                     <input type="text" name="username" class="form-control" placeholder="Username" required="length[6~50]">
                 </div>

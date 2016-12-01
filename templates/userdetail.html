@@ -61,7 +61,7 @@
                             <td class="text-center">登录次数： </td>
                             <td colspan="2" class="text-center">{{ logincount }}</td>
                             <td class="text-center">最后登录： </td>
-                            <td colspan="3" class="text-center">{{ lastlogin }}</td>
+                            <td colspan="3" class="text-center">{{ lastlogin|date:"Y-m-d H:i:s" }}</td>
                         </tr>
 
                     </table>

@@ -6,6 +6,8 @@ from user.models import admin
 from autodeploy.settings import ldapconn, basedn, ldappassword, ldapcn
 import ldap
 import ldap.modlist as modlist
+import hashlib
+
 
 # 检测数据库是否正常
 def check_db():
@@ -13,13 +15,39 @@ def check_db():
         conn = connection.cursor()  # 检测数据库是正常
         return 1
     except:
-        logger.error('连接'+str(DBHOST)+'数据库错误')
+        logger.error(u'连接%s数据库错误' % DBHOST)
         return 0
+
+
+# 检测用户是否登陆，并判断权限
+def is_login(request):
+    try:
+        username = request.session.get('username', False)
+        isadmin = request.session.get('isadmin', False)
+    except:
+        logger.error(u'连接%s数据库错误' % DBHOST)
+        return 0
+    if not username:
+        return 0
+    if not isadmin:  # 普通用户
+        return 3
+    if username and isadmin:  # 管理员
+        return 2
+
+
+# md5加密
+def chartomd5(password):
+    if len(password) == 0:
+        return 0
+    temp = hashlib.md5()
+    temp.update(password)
+    return temp.hexdigest()
+
 
 
 # 从数据库里面验证用户,传入用户名密码，成功返回1，失败返回0
 def dbcheckuser(username, password):
-    result = admin.objects.filter(username=username,password=password)
+    result = admin.objects.filter(username=username, password=password)
     if result:
         return 1
     else:
@@ -33,6 +61,16 @@ def get_one(username):
         return recordlist
     except:
         return 0
+
+
+# 从数据库中删除一条记录
+def delete_one(username):
+    try:
+        admin.objects.get(username=username).delete()
+        return 1
+    except:
+        return 0
+
 
 # ldap添加用户,传入用户名密码
 def ldap_add(username, password):
@@ -117,3 +155,23 @@ def ldap_mpasswrod(username, password):  # 修改ldap用户密码
         return 1
     except:
         return 0
+
+
+# 获取所有数据
+def get_alldata(keyword):
+    try:
+        if not keyword:
+            recordlist = admin.objects.all()
+        else:
+            recordlist = admin.objects.filter(username__icontains=keyword).order_by('username')
+        return recordlist
+    except:
+        return 0
+
+
+# 强制转换页码为整数,以免出现页码错误,当出现异常返回为1
+def try_int(args):
+    try:
+        return int(args)
+    except:
+        return 1

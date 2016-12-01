@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
-from user.views import login,checklogin
+from user.views import login,checklogin, user_list
 from vdeploy.views import index,logout
 admin.autodiscover()
 
