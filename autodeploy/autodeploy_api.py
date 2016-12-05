@@ -2,11 +2,13 @@
 from django.db import connection
 from autodeploy.settings import logger
 from autodeploy.settings import DBHOST
-from user.models import admin
+from user.models import admin, per_code, user_per, user_chpass
 from autodeploy.settings import ldapconn, basedn, ldappassword, ldapcn
 import ldap
 import ldap.modlist as modlist
 import hashlib
+import uuid
+import time
 
 
 # 检测数据库是否正常
@@ -44,21 +46,17 @@ def chartomd5(password):
     return temp.hexdigest()
 
 
-
-# 从数据库里面验证用户,传入用户名密码，成功返回1，失败返回0
+# 从数据库里面验证用户,传入用户名密码，成功返回记录，失败返回0
 def dbcheckuser(username, password):
     result = admin.objects.filter(username=username, password=password)
-    if result:
-        return 1
-    else:
-        return 0
+    return result if result else 0
 
 
 # 从数据中取一条记录
 def get_one(username):
     try:
-        recordlist = admin.objects.get(username=username)
-        return recordlist
+        record = admin.objects.get(username=username)
+        return record
     except:
         return 0
 
@@ -146,9 +144,9 @@ def ldap_mpasswrod(username, password):  # 修改ldap用户密码
     try:
         l = ldap.initialize(ldapconn)
         l.simple_bind_s(ldapcn, ldappassword)
-        udn = "uid=" + username + ',' + basedn
+        udn = "uid=" + str(username) + ',' + basedn
         old = {'userPassword': '11111'}
-        new = {'userPassword': password}
+        new = {'userPassword': str(password)}
         ldif = modlist.modifyModlist(old, new)
         l.modify_s(udn, ldif)
         l.unbind()
@@ -175,3 +173,141 @@ def try_int(args):
         return int(args)
     except:
         return 1
+
+
+def check_user(username):  # 判断用户是否已存在
+    recordlist = admin.objects.filter(username=username)
+    if recordlist:
+        recordlist = admin.objects.get(username=username)
+        recordlist.logincount += 1
+        recordlist.save()
+        return 1
+    else:
+        return 0
+
+
+def add_user(username, password, email='test@enjoyfin.com', vaild=1, isadmin=0):  # 添加用户
+    try:
+        admin.objects.create(username=username, password=password, email=email, vaild=vaild, isadmin=isadmin,
+                             logincount=0,
+                             lastlogin=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        return 1
+    except:
+        return 0
+
+
+def update_user(username, password, email, vaild, isadmin):  # 更新用户
+    try:
+        obj = admin.objects.get(username=username)
+        if password == '':
+            obj.email = email
+            obj.vaild = vaild
+            obj.password = obj.password
+            obj.isadmin = isadmin
+        else:
+            obj.password = password
+            obj.email = email
+            obj.vaild = vaild
+            obj.isadmin = isadmin
+        obj.save()
+        return 1
+    except:
+        return 0
+
+
+def get_username(username):  # 获取用户数据
+    try:
+        return admin.objects.get(username=username)
+    except:
+        return 0
+
+
+# 原生sql查询转换成字典
+def dictfetchall(cursor):
+    desc = cursor.description
+    return [
+        dict(zip([col[0] for col in desc], row))
+        for row in cursor.fetchall()
+        ]
+
+
+# 重设密码表
+def userpass_modify(username):
+    if get_one(username):
+        passuuid = str(uuid.uuid4()).replace('-', '')  # 生成uuid
+        try:
+            user_chpass.objects.create(username=username, passuuid=passuuid,
+                                       ctime=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+            return passuuid
+        except:
+            return 0
+    return 0
+
+
+# 查询重置密码表
+def get_resetpass(username, passuuid):
+    try:
+        record = user_chpass.objects.get(username=username, passuuid=passuuid)
+        return record
+    except:
+        return 0
+
+
+# 删除重置密码记录
+def delete_resetpass(username, passuuid):
+    try:
+        user_chpass.objects.get(username=username, passuuid=passuuid).delete()
+        return 1
+    except:
+        return 0
+
+
+# 添加权限代码
+def addpercode(pcode, pname):
+    try:
+        per_code.objects.create(Per_code=pcode, Per_name=pname)
+        return 1
+    except:
+        return 0
+
+
+# 获取权限代码表所有数据
+def get_percode(keyword):
+    try:
+        if not keyword:
+            recordlist = per_code.objects.all()
+        else:
+            recordlist = per_code.objects.filter(Per_name__icontains=keyword).order_by('Per_code')
+        return recordlist
+    except:
+        return 0
+
+
+# 从权限库中删除一条记录
+def perdelete_one(id):
+    try:
+        id = try_int(id)
+        per_code.objects.get(id=id).delete()
+        return 1
+    except:
+        return 0
+
+
+# 从用户权限表中中取一条记录
+def get_perone(id):
+    try:
+        record = per_code.objects.get(id=id)
+        return record
+    except:
+        return 0
+
+# 更新权限代码表
+def update_perone(id, pcode, pname):
+    try:
+        record = per_code.objects.get(id=id)
+        record.Per_code = pcode
+        record.Per_name = pname
+        record.save()
+        return 1
+    except:
+        return 0

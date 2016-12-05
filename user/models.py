@@ -1,11 +1,10 @@
 # coding:utf-8
 from django.db import models
-import time
 
 
 # Create your models here.
 
-
+# 用户表
 class admin(models.Model):
     id = models.AutoField(primary_key=True, null=False, verbose_name="自增ID")  # ID字段
     username = models.CharField(max_length=50, null=False, blank=False, unique=True, verbose_name="用户名")  # 用户名
@@ -16,55 +15,47 @@ class admin(models.Model):
     logincount = models.PositiveIntegerField(null=False, default=0, verbose_name="登陆次数")  # 登录次数
     lastlogin = models.DateTimeField(verbose_name="最后一次登录时间")  # 最后登录时间
 
-    def __str__(self):
-        return "%s %s" % (username, password)
+    def __unicode__(self):
+        return "%s %s" % (self.username, self.password)
 
     class Meta:
         db_table = 'admin'
         verbose_name = "用户表"
+        verbose_name_plural = verbose_name
 
 
-def check_user(username):  # 判断用户是否已存在
-    recordlist = admin.objects.filter(username=username)
-    if recordlist:
-        recordlist = admin.objects.get(username=username)
-        recordlist.logincount += 1
-        recordlist.save()
-        return 1
-    else:
-        return 0
+# 用户权限表
+class user_per(models.Model):
+    Per_user = models.CharField(max_length=50, blank=False, verbose_name='用户名')
+    Per_code = models.CharField(max_length=5, blank=False, verbose_name="权限代码")
+
+    def __unicode__(self):
+        return "%s" % (self.Per_user)
+
+    class Meta:
+        db_table = 'user_per'
+        verbose_name = "用户权限表"
+        verbose_name_plural = verbose_name
 
 
-def add_user(username, password, email='test@enjoyfin.com', vaild=1, isadmin=0):  # 添加用户
-    try:
-        admin.objects.create(username=username, password=password, email=email, vaild=vaild, isadmin=isadmin, logincount=0,
-                             lastlogin=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-        return 1
-    except:
-        return 0
+# 权限代码表
+class per_code(models.Model):
+    Per_code = models.CharField(max_length=5, blank=False, verbose_name="权限代码")
+    Per_name = models.CharField(max_length=50, blank=False, verbose_name="权限名")
 
+    class Meta:
+        db_table = "per_code"
+        verbose_name = "权限代码表"
+        verbose_name_plural = verbose_name
 
-def update_user(username, password, email, vaild, isadmin):  # 更新用户
-    try:
-        obj = admin.objects.get(username=username)
-        if password == '':
-            obj.email = email
-            obj.vaild = vaild
-            obj.password = obj.password
-            obj.isadmin = isadmin
-        else:
-            obj.password = password
-            obj.email = email
-            obj.vaild = vaild
-            obj.isadmin = isadmin
-        obj.save()
-        return 1
-    except:
-        return 0
+# 重置密码表
+class user_chpass(models.Model):
+    username = models.CharField(max_length=50, blank=False, verbose_name='用户名')
+    passuuid = models.CharField(max_length=32, blank=False, verbose_name='uuid')
+    ctime = models.DateTimeField(blank=False, verbose_name='更改时间')
 
+    class Meta:
+        db_table = 'user_chpass'
+        verbose_name = "重置密码表"
+        verbose_name_plural = verbose_name
 
-def get_username(username):  # 获取用户数据
-    try:
-        return admin.objects.get(username=username)
-    except:
-        return 0

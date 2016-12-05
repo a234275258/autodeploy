@@ -7,4 +7,7 @@ urlpatterns = patterns('user.views',
                        url(r'^edit/$', user_edit, name='user_edit'),
                        url(r'^del/$', user_del, name='user_del'),
                        url(r'^user_detail/$', user_detail, name='user_detail'),
+                       url(r'^user_mail_send/$', user_mail_send, name='user_mail_send'),
+                       url(r'^forget/$', forget, name='forget'),
+                       url(r'^reset_password/$', reset_password, name='reset_password'),
                        )
