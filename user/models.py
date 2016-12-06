@@ -28,6 +28,7 @@ class admin(models.Model):
 class user_per(models.Model):
     Per_user = models.CharField(max_length=50, blank=False, verbose_name='用户名')
     Per_code = models.CharField(max_length=5, blank=False, verbose_name="权限代码")
+    comment = models.CharField(max_length=255, blank=True, null=True, verbose_name='备注')
 
     def __unicode__(self):
         return "%s" % (self.Per_user)

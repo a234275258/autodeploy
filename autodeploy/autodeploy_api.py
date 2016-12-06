@@ -283,20 +283,20 @@ def get_percode(keyword):
         return 0
 
 
-# 从权限库中删除一条记录
-def perdelete_one(id):
+# 从表中删除一条记录，传参为表名，id
+def all_delete_one(tbname, id):
     try:
         id = try_int(id)
-        per_code.objects.get(id=id).delete()
+        eval(tbname).objects.get(id=id).delete()
         return 1
     except:
         return 0
 
 
-# 从用户权限表中中取一条记录
-def get_perone(id):
+# 从表中取一条记录，传参为表名，id
+def all_get_one(tbname, id):
     try:
-        record = per_code.objects.get(id=id)
+        record = eval(tbname).objects.get(id=id)
         return record
     except:
         return 0

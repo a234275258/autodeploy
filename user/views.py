@@ -6,12 +6,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from autodeploy.autodeploy_api import check_db, dbcheckuser, get_one, ldap_add, ldap_mpasswrod, \
     ldap_delete, get_alldata, delete_one, try_int, is_login, chartomd5, check_user, add_user, \
     get_username, update_user, userpass_modify, get_resetpass, delete_resetpass, addpercode, \
-    get_percode, perdelete_one, get_perone, update_perone
+    get_percode, all_delete_one, all_get_one, update_perone
 from autodeploy.pagehelper import pagehelper, generatehtml
 from autodeploy.settings import DBHOST, message, messageindex
 import ldap
 import time
 from django.core.mail import send_mail
+from user.models import admin, per_code
 
 
 # Create your views here.
@@ -466,10 +467,21 @@ def privilege_add(request):
         return HttpResponse(message % '你没有模块权限')
 
 
-
 # 授权
 def privilege_grant(request):
-    pass
+    cname = TITLE
+    privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
+    if privage == 0:
+        return HttpResponseRedirect('/login/')  # 未登录直接返回
+    if privage == 2:
+        try:
+            user = admin.objects.all().values('id', 'username')   # 获取用户数据
+            percode = per_code.objects.all().values('Per_code', 'Per_name') # 获取权限数据
+        except:
+            return HttpResponse(message % '获取数据失败')
+        return render(request, 'user/grantadd.html', locals())
+    else:
+        return HttpResponse(message % '你没有模块权限')
 
 
 # 权限列表
@@ -524,6 +536,7 @@ def privilege_list(request):
     else:
         return HttpResponse(message % '你没有权限访问该模块')
 
+
 # 删除权限代码
 def privilege_del(request):
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
@@ -535,7 +548,7 @@ def privilege_del(request):
             if not id:
                 return HttpResponse(message % '操作错误')
             else:
-                result = perdelete_one(id)
+                result = all_delete_one('per_code', id)
                 if result:
                     return HttpResponse('权限删除成功')
                 else:
@@ -546,12 +559,13 @@ def privilege_del(request):
                 return HttpResponse('没有选中记录')
             per_list1 = per_list.split(',')
             for i in per_list1:
-                    perdelete_one(i)
+                all_delete_one('per_code', i)
             return HttpResponse('删除成功')
         else:
             return HttpResponse('错误请求')
     else:
         return HttpResponse(message % '你没有操作此项目的权限')
+
 
 # 编辑权限代码
 def privilege_edit(request):
@@ -561,7 +575,7 @@ def privilege_edit(request):
         return HttpResponseRedirect('/login/')
     if request.method == 'GET':
         id = request.GET.get('id', '')  # 获取用户名
-        result = get_perone(id)
+        result = all_get_one('per_code', id)
         if result:
             pcode = result.Per_code
             pname = result.Per_name
@@ -578,5 +592,4 @@ def privilege_edit(request):
         else:
             message = "更新失败"
         return render(request, 'user/editper.html', locals())
-
     return HttpResponse(message % '你没有操作此项目的权限')
