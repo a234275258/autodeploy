@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     url(r'^checklogin/$', checklogin, name="checklogin"),
     url(r'^logout/$', logout, name="logout"),
     url(r'^user/', include('user.urls')),
-    url(r'^privilege/', include('user.urlspriv'))
+    url(r'^privilege/', include('user.urlspriv')),
+    url(r'project/', include('project.urls')),
 )

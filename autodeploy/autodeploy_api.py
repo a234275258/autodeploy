@@ -301,6 +301,7 @@ def all_get_one(tbname, id):
     except:
         return 0
 
+
 # 更新权限代码表
 def update_perone(id, pcode, pname):
     try:
@@ -311,3 +312,53 @@ def update_perone(id, pcode, pname):
         return 1
     except:
         return 0
+
+
+# 更新授权表
+def update_user_per(id, Per_user, Per_code, comment=""):
+    try:
+        record = user_per.objects.get(id=id)
+        record.Per_user = Per_user
+        record.Per_code = Per_code
+        record.comment = comment
+        record.save()
+        return 1
+    except:
+        return 0
+
+
+# 添加授权信息
+def add_user_per(Per_user, Per_code, comment=""):
+    try:
+        user_per.objects.create(Per_user=Per_user, Per_code=Per_code, comment=comment)
+        return 1
+    except:
+        return 0
+
+
+# 获取授权表所有数据
+def get_user_per(keyword):
+    try:
+        if not keyword:
+            recordlist = user_per.objects.all()
+        else:
+            recordlist = user_per.objects.filter(Per_user__icontains=keyword).order_by('Per_user')
+        return recordlist
+    except:
+        return 0
+
+
+# 获取授权表所有数据
+def get_user_per(keyword):
+    try:
+        cur = connection.cursor()
+        if not keyword:
+            count = cur.execute('select a.id , a.Per_user,b.Per_name ,a.comment from user_per a left join per_code b on a.Per_code = b.Per_code')
+            recordlist  = dictfetchall(cur)
+        else:
+            count = cur.execute("select a.id , a.Per_user,b.Per_name ,a.comment from user_per a left join per_code b on a.Per_code = b.Per_code  where Per_user = '%s'" % keyword)
+            recordlist  = dictfetchall(cur)
+        cur.close()
+        return count, recordlist
+    except:
+        return 0, 0

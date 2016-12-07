@@ -20,7 +20,7 @@
 <link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
 <link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
 <link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
-<script src="/static/js/jquery-2.1.1.js"></script>
+    <script src="/static/js/jquery-2.1.1.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/base.js"></script>
 
@@ -58,7 +58,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>用户授权</h2>
+        <h2>修改授权</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">首页</a>
@@ -70,7 +70,7 @@
             </li>
 
             <li class="active">
-                <strong>用户授权</strong>
+                <strong>修改授权</strong>
             </li>
 
         </ol>
@@ -85,7 +85,7 @@
             <div class="col-sm-10">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>填写基本信息</h5>
+                        <h5>修改授权信息</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -98,35 +98,30 @@
                             </a>
                         </div>
                     </div>
-
                     <div class="ibox-content">
-                        <form method="post" id="ruleForm" class="form-horizontal" action="">
+                        <form method="post" id="userForm" class="form-horizontal" action="">
                             {% if message %}
                                 <div class="alert alert-success">
-                                    添加授权结果 : {{ message }}<br />
+                                    修改授权结果 : {{ message }}<br />
                             </div>
                             {% endif %}
-                            <div class="form-group">
-                                <label for="user" class="col-sm-2 control-label">用户</label>
+                            <span style="display:none"><input type="text" name='id' class="form-control" value="{{ id }}"></span>
+                             <div class="form-group">
+                                <label for="user" class="col-sm-2 control-label">用户名<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <select name="puser" id="puser" data-placeholder="请选择用户" class="chosen-select form-control m-b"  tabindex="2">
-                                            {% for i in user %}
-                                            <option value="{{ i.username }}">{{ i.username }}</option>
-                                            {% endfor %}
-
-
-                                    </select>
-                                     <!-- <span class="help-block m-b-none">请选择用户名</span> -->
+                                    <input id="user" name="user" placeholder="用户名" type="text" value="{{ peruser }}" class="form-control" readonly >
                                 </div>
                             </div>
-
-                            <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="asset" class="col-sm-2 control-label">权限</label>
                                 <div class="col-sm-8">
-                                    <select name="pcode" id="pcode" data-placeholder="请选择权限" class="chosen-select form-control m-b"  tabindex="2">
+                                    <select name="pcode" id="pcode" data-placeholder="请选择权限" class="chosen-select form-control m-b" value="{{pname}}" tabindex="2">
                                             {% for i in percode %}
-                                            <option value="{{ i.Per_code }}">{{ i.Per_name }}</option>
+                                            {% if pname == i.Per_code %}
+                                                <option value="{{ i.Per_code }}" selected = "selected">{{ i.Per_name }}</option>
+                                            {% else %}
+                                                 <option value="{{ i.Per_code }}">{{ i.Per_name }}</option>
+                                            {% endif %}
                                             {% endfor %}
 
                                     </select>
@@ -134,13 +129,19 @@
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
+
                             <div class="form-group">
-                                <label for="comment" class="col-sm-2 control-label">备注</label>
+                                <label for="asset" class="col-sm-2 control-label">说明</label>
                                 <div class="col-sm-8">
-                                    <input id="comment" name="comment" type="text" class="form-control" >
+                                    <input name="comment" id="comment" data-placeholder="comment" class="chosen-select form-control m-b"  value=" {{ comment }}" tabindex="2" />
+
+
+
+                                    <!--<span class="help-block m-b-none">必填</span>-->
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
+
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <button class="btn btn-white" type="reset">取消</button>
@@ -204,53 +205,36 @@
 </script>
 
 
+
 <script>
-$('#ruleForm').validator({
+$('#userForm').validator({
     timely: 2,
     theme: "yellow_right_effect",
     rules: {
-        check_name: [/^\w{2,20}$/, '大小写字母数字和下划线,2-20位'],
-        check_user: function(){
-            return $('#user').val() == null
-        },
-        check_asset: function(){
-            return $('#asset').val() == null
-        }
+        check_pcode: [/^[\w.]{3,20}$/, '大小写字母数字和下划线小数点'],
+        type_m: function(element){
+                    return  $("#M").is(":checked");
+            }
     },
-
     fields: {
-        "name": {
-            rule: "required",
-            tip: "输入规则名称",
-            msg: {required: "规则名称必填"}
-        },
         "pcode": {
-            rule: "required(check_user)",
-            tip: "请选择权限",
-            msg: {required: "必须先择权限!"}
+            rule: "required;check_pcode",
+            tip: "输入权限代码",
+            ok: "",
+            msg: {required: "必须填写!"}
+        },
+        "pname": {
+            rule: "required;check_pname",
+            tip: "输入权限说明",
+            ok: "",
+            msg: {required: "必须填写!"}
         }
-
     },
     valid: function(form) {
-            form.submit();
-        }
+        form.submit();
+    }
 });
 
-
-var config = {
-                '.chosen-select'           : {},
-                '.chosen-select-deselect'  : {allow_single_deselect:true},
-                '.chosen-select-no-single' : {disable_search_threshold:10},
-                '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
-                '.chosen-select-width'     : {width:"95%"}
-            };
-
-for (var selector in config) {
-    $(selector).chosen(config[selector]);
-}
-
 </script>
-    <script src="/static/js/cropper/cropper.min.js"></script>
-    <script src="/static/js/datapicker/bootstrap-datepicker.js"></script>
 
 </html>

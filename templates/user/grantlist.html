@@ -58,7 +58,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>查看权限</h2>
+        <h2>查看授权</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">仪表盘</a>
@@ -70,7 +70,7 @@
             </li>
 
             <li class="active">
-                <strong>权限列表</strong>
+                <strong>查看授权</strong>
             </li>
 
         </ol>
@@ -85,7 +85,7 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5> 查看权限 </h5>
+                    <h5> 查看授权 </h5>
                     <div class="ibox-tools">
                         <a class="collapise-link">
                             <i class="fa fa-chevron-up"></i>
@@ -101,7 +101,7 @@
 
                 <div class="ibox-content">
                     <div class="">
-                        <a href="/privilege/add/" class="btn btn-sm btn-primary "> 添加权限 </a>
+                        <a href="/privilege/grant/" class="btn btn-sm btn-primary "> 添加权限 </a>
                         <a id="del_btn" class="btn btn-sm btn-danger "> 删除权限 </a>
                         <form id="search_form" method="get" action="" class="pull-right mail-search">
                             <div class="input-group">
@@ -122,8 +122,9 @@
                                     <input type="checkbox" id="check_all" onclick="checkAll('check_all', 'checked')">
                                 </th>
                                 <th class="text-center">ID</th>
-                                <th class="text-center">权限代码</th>
-                                <th class="text-center">权限说明</th>
+                                <th class="text-center">用户名</th>
+                                <th class="text-center">权限</th>
+                                <th class="text-center">备注</th>
                                  <th class="text-center">操作</th>
                             </tr>
                         </thead>
@@ -134,13 +135,14 @@
                                 <td class="text-center">
                                     <input type="checkbox" name="checked" value="{{ i.id }}">
                                 </td>
-                                <td class="text-center"> {{ i.id }} </td>
-                                <td class="text-center"><a href="/privilege/edit/?id={{ i.id }}">{{ i.Per_code }}</a></td>
+                                <td class="text-center"> <a href="/privilege/grantedit/?id={{ i.id }}">{{ i.id }}</a> </td>
+                                <td class="text-center"><a href="/privilege/grantedit/?id={{ i.id }}">{{ i.Per_user }}</a></td>
 
                                 <td class="text-center" title="{{ i.Per_name }}"> {{ i.Per_name }} </td>
+                                <td class="text-center" title="{{ i.comment }}"> {{ i.comment }} </td>
                                 <td class="text-center">
-                                    <a href="/privilege/edit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
-                                    <a value="/privilege/del/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
+                                    <a href="/privilege/grantedit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="/privilege/grantdel/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
                                 </td>
                             </tr>
                                 {% endfor %}
@@ -274,7 +276,7 @@
                 }
             );
                 console.log(check_array.join(","));
-                $.post("/privilege/del/",
+                $.post("/privilege/grantdel/",
                         {id: check_array.join(",")},
                         function(data){
                             $("input[name='checked']:checked").each(function() { // 遍历选中的checkbox

@@ -1,14 +1,13 @@
 # coding:utf-8
 from django.shortcuts import render
-from autodeploy.settings import TITLE, ldapconn, basedn, URL, DEFAULT_FROM_EMAIL
-from autodeploy.settings import logger
+from autodeploy.settings import TITLE, ldapconn, basedn, URL, DEFAULT_FROM_EMAIL, DBHOST, message, messageindex, \
+    logger
 from django.http import HttpResponse, HttpResponseRedirect
 from autodeploy.autodeploy_api import check_db, dbcheckuser, get_one, ldap_add, ldap_mpasswrod, \
     ldap_delete, get_alldata, delete_one, try_int, is_login, chartomd5, check_user, add_user, \
     get_username, update_user, userpass_modify, get_resetpass, delete_resetpass, addpercode, \
-    get_percode, all_delete_one, all_get_one, update_perone
+    get_percode, all_delete_one, all_get_one, update_perone, update_user_per, add_user_per, get_user_per
 from autodeploy.pagehelper import pagehelper, generatehtml
-from autodeploy.settings import DBHOST, message, messageindex
 import ldap
 import time
 from django.core.mail import send_mail
@@ -93,6 +92,8 @@ def user_add(request):  # 添加用户
     privlege = is_login(request)
     if privlege == 0:
         return HttpResponseRedirect('/login/')  # 没有登录，返回到主页
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if request.method == "POST":
         username = request.POST['username'].encode('utf-8')
         password = request.POST['password'].encode('utf-8')
@@ -118,10 +119,10 @@ def user_add(request):  # 添加用户
 恭喜帐号开通成功""" % (username, '******', URL)
                 print msg
                 send_mail_mod(u"恭喜帐号开通成功", msg, str(email))
-            return render(request, 'user/adduser.html', {'cname': cname, 'message': message1})
+            return render(request, 'user/adduser.html', {'cname': cname, 'message': message1, 'username': username, 'isadmin':isadmin})
         else:
             message1 = username + '添加失败'
-            return render(request, 'user/adduser.html', {'cname': cname, 'message': message1})
+            return render(request, 'user/adduser.html', {'cname': cname, 'message': message1, 'username': username, 'isadmin':isadmin})
     else:
         if privlege == 2:  # 权限为管理员
             return render(request, 'user/adduser.html', locals())
@@ -135,6 +136,8 @@ def user_list(request):
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if privage == 2:
         keyword = request.GET.get('keyword', '')
         page = request.GET.get('page', '')
@@ -265,6 +268,8 @@ def user_del(request):
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if privage == 2:
         if request.method == "GET":
             deluser = request.GET.get('username', '')
@@ -303,6 +308,7 @@ def user_detail(request):
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 没有登陆，返回为登录
     username = request.GET.get('username', '')
+    isadmin = request.session.get('isadmin', False)
     if username:  # 如果用户参数不为为空
         recordlist = get_one(username)
         if not recordlist:  # 获取记录失败
@@ -324,6 +330,7 @@ def user_mail_send(request):  # 发送邮件
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 没有登陆，返回为登录
     username = request.GET.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if not username:
         return HttpResponse('操作失败')
     record = get_one(username)
@@ -360,7 +367,7 @@ def forget(request):
                     return HttpResponse(message % '链接已超时，请使用忘记密码重新发送')
                 return render(request, 'user/reset_password.html', locals())
             else:
-                return HttpResponse(messageindex % '链接有误')
+                return HttpResponse(messageindex % ('链接有误', '/index/'))
     else:
         username = request.POST.get('username', False)
         email = request.POST.get('email', False)
@@ -387,7 +394,7 @@ def forget(request):
                     send_mail(u'邮件发送', msg, DEFAULT_FROM_EMAIL, [useremail], fail_silently=False)
                 except IndexError:
                     return HttpResponse(message % '重置密码失败')
-                return HttpResponse(messageindex % '重置密码邮件发送成功')
+                return HttpResponse(messageindex % ('重置密码邮件发送成功', '/index/'))
 
 
 # 重置密码
@@ -400,9 +407,9 @@ def reset_password(request):
             record = get_resetpass(username, passuuid)
             if record:
                 render(request, 'user/reset_password.html', locals())
-            return HttpResponse(messageindex % '链接信息有误')
+            return HttpResponse(messageindex % ('链接信息有误', '/index/'))
         else:
-            return HttpResponse(messageindex % '链接信息有误')
+            return HttpResponse(messageindex % ('链接信息有误', '/index/'))
     else:
         password = request.POST.get('password')
         password_confirm = request.POST.get('password_confirm')
@@ -415,7 +422,7 @@ def reset_password(request):
             result = False
             result_ldap = False
             if not get_resetpass(str(username), str(passuuid)):
-                return HttpResponse(messageindex % '链接错误')
+                return HttpResponse(messageindex % ('链接错误', '/index/'))
             if record:
                 temp = chartomd5(password)
                 if temp != 0:
@@ -427,10 +434,10 @@ def reset_password(request):
                     logger.error(u'%s用户ldap密码修改失败' % username)
                 if result and result_ldap:  # 如果ldap跟数据库密码修改成功
                     delete_resetpass(username, passuuid)  # 删除重置密码记录，删除成功与否不作判断
-                    return HttpResponse(messageindex % '密码修改成功')
-                return HttpResponse(messageindex % '密码修改失败')
+                    return HttpResponse(messageindex % ('密码修改成功', '/index/'))
+                return HttpResponse(messageindex % ('密码修改失败', '/index/'))
             else:
-                return HttpResponse(messageindex % '密码修改失败')
+                return HttpResponse(messageindex % ('密码修改失败', '/index/'))
 
 
 # 发送邮件模块
@@ -448,6 +455,8 @@ def privilege_add(request):
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if privage == 2:
         if request.method == 'GET':
             return render(request, 'user/percodeadd.html', locals())
@@ -467,29 +476,14 @@ def privilege_add(request):
         return HttpResponse(message % '你没有模块权限')
 
 
-# 授权
-def privilege_grant(request):
-    cname = TITLE
-    privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
-    if privage == 0:
-        return HttpResponseRedirect('/login/')  # 未登录直接返回
-    if privage == 2:
-        try:
-            user = admin.objects.all().values('id', 'username')   # 获取用户数据
-            percode = per_code.objects.all().values('Per_code', 'Per_name') # 获取权限数据
-        except:
-            return HttpResponse(message % '获取数据失败')
-        return render(request, 'user/grantadd.html', locals())
-    else:
-        return HttpResponse(message % '你没有模块权限')
-
-
 # 权限列表
 def privilege_list(request):
     cname = TITLE
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if privage == 2:
         keyword = request.GET.get('keyword', '')
         page = request.GET.get('page', '')
@@ -542,6 +536,8 @@ def privilege_del(request):
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
     if privage == 0:
         return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if privage == 2:
         if request.method == "GET":
             id = request.GET.get('id', '')
@@ -573,6 +569,8 @@ def privilege_edit(request):
     privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
     if privage == 0:
         return HttpResponseRedirect('/login/')
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
     if request.method == 'GET':
         id = request.GET.get('id', '')  # 获取用户名
         result = all_get_one('per_code', id)
@@ -593,3 +591,174 @@ def privilege_edit(request):
             message = "更新失败"
         return render(request, 'user/editper.html', locals())
     return HttpResponse(message % '你没有操作此项目的权限')
+
+
+# 授权
+def privilege_grant(request):
+    cname = TITLE
+    privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
+    if privage == 0:
+        return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
+    if privage == 2:
+        if request.method == 'GET':
+            try:
+                user = admin.objects.all().values('username')  # 获取用户数据
+                percode = per_code.objects.all().values('Per_code', 'Per_name')  # 获取权限数据
+            except:
+                return HttpResponse(message % '获取数据失败')
+            return render(request, 'user/grantadd.html', locals())
+        else:
+            user = request.POST.get('puser', False)
+            pcode = request.POST.get('pcode', False)
+            comment = request.POST.get('comment', "")
+            if not (user and pcode):
+                return HttpResponse(messageindex % ('输入有误', '/index/'))
+            else:
+                result = add_user_per(user, pcode, comment)
+                if result:
+                    message = "添加成功"
+                else:
+                    message = "添加失败"
+                try:
+                    user = admin.objects.all().values('username')  # 获取用户数据
+                    percode = per_code.objects.all().values('Per_code', 'Per_name')  # 获取权限数据
+                except:
+                    return HttpResponse(messageindex % ('输入有误', '/index/'))
+                return render(request, 'user/grantadd.html', locals())
+    else:
+        return HttpResponse(message % '你没有模块权限')
+
+
+# 权限列表
+def privilege_grantlist(request):
+    cname = TITLE
+    privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
+    if privage == 0:
+        return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
+    if privage == 2:
+        keyword = request.GET.get('keyword', '')
+        page = request.GET.get('page', '')
+        count = 0  # 总记录数
+        peritem = 10  # 每页记录数
+        if keyword:  # 带搜索的处理
+            count, data = get_user_per(keyword)  # 查询权限说明为关键词的记录
+            #count = data.count()  # 获取总记录数
+            if not count:
+                return HttpResponse(messageindex % ('目前还没有授权记录，请添加', '/privilege/grant/'))
+            if not page:  # 如果没有取到page值
+                page = 1
+            page = try_int(page)
+            pageclass = pagehelper(page, count, peritem)
+            totalpage = pageclass.totalpage()
+            start = pageclass.prev()  # 开始记录数
+            end = pageclass.next1()  # 结束记录数
+            data = data[start:end]
+            start = start + 1
+            pagehtml = generatehtml('page=', page, totalpage)
+        elif not page:
+            page = 1
+            count, data = get_user_per(False)  # 获取所有记录
+            if not count:
+                return HttpResponse(messageindex % ('目前还没有授权记录，请添加', '/privilege/grant/'))
+            #count = data.count()  # 获取总记录数
+            pageclass = pagehelper(page, count, peritem)  # 计算分页的类
+            totalpage = pageclass.totalpage()  # 总页数
+            start = pageclass.prev()  # 开始记录数
+            end = pageclass.next1()  # 结束记录数
+            data = data[start:end]  # 取当前页要显示的记录
+            start = start + 1
+            pagehtml = generatehtml('/privilege/grantlist/?page=', page, totalpage)  # 生成分页的html代码
+        else:
+            page = try_int(page)  # 转为int类型
+            count, data = get_user_per(False)  # 获取所有记录
+            if not count:
+                return HttpResponse(messageindex % ('目前还没有授权记录，请添加', '/privilege/grant/'))
+            #count = data.count()  # 获取总记录数
+            pageclass = pagehelper(page, count, peritem)
+            totalpage = pageclass.totalpage()
+            start = int(pageclass.prev())  # 开始记录数
+            end = int(pageclass.next1())  # 结束记录数
+            data = data[start:end]
+            start = start + 1
+            pagehtml = generatehtml('/privilege/grantlist/?page=', page, totalpage)
+        if not data:
+            return HttpResponse(message % '操作错误')
+        return render(request, 'user/grantlist.html', locals())
+    else:
+        return HttpResponse(message % '你没有权限访问该模块')
+
+
+# 权限删除
+def privilege_grantdel(request):
+    privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
+    if privage == 0:
+        return HttpResponseRedirect('/login/')  # 未登录直接返回
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
+    if privage == 2:
+        if request.method == "GET":
+            id = request.GET.get('id', '')
+            if not id:
+                return HttpResponse(message % '操作错误')
+            else:
+                result = all_delete_one('user_per', id)
+                if result:
+                    return HttpResponse('权限删除成功')
+                else:
+                    return HttpResponse('删除失败')
+        elif request.method == "POST":
+            per_list = request.POST.get('id', '')
+            if not per_list:
+                return HttpResponse('没有选中记录')
+            per_list1 = per_list.split(',')
+            for i in per_list1:
+                all_delete_one('user_per', i)
+            return HttpResponse('删除成功')
+        else:
+            return HttpResponse('错误请求')
+    else:
+        return HttpResponse(message % '你没有操作此项目的权限')
+
+
+# 权限编辑
+def privilege_grantedit(request):
+    cname = TITLE
+    privage = is_login(request)  # 权限，0为未登录，2为管理员，3为普通用户
+    if privage == 0:
+        return HttpResponseRedirect('/login/')
+    username = request.session.get('username', False)
+    isadmin = request.session.get('isadmin', False)
+    if request.method == 'GET':
+        id = request.GET.get('id', '')  # 获取用户名
+        result = all_get_one('user_per', id)
+        if result:
+            peruser = result.Per_user
+            pname = result.Per_code
+            comment = result.comment
+            try:
+                percode = per_code.objects.all().values('Per_code', 'Per_name')  # 获取权限数据
+            except:
+                return HttpResponse(message % '获取数据失败')
+            return render(request, 'user/editgrant.html', locals())
+        else:
+            return HttpResponse(message % '获取数据失败')
+    else:
+        id = request.POST['id'].encode('utf-8')
+        peruser = request.POST['user'].encode('utf-8')
+        pcode = request.POST['pcode'].encode('utf-8')
+        comment = request.POST['comment'].encode('utf-8')
+        result = update_user_per(id, peruser, pcode, comment)
+        if result:
+            message = "更新成功"
+        else:
+            message = "更新失败"
+        try:
+            percode = per_code.objects.all().values('Per_code', 'Per_name')  # 获取权限数据
+        except:
+            return HttpResponse(message % '获取数据失败')
+        return render(request, 'user/editgrant.html', locals())
+
