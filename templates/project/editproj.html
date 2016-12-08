@@ -20,7 +20,7 @@
 <link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
 <link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
 <link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
-<script src="/static/js/jquery-2.1.1.js"></script>
+    <script src="/static/js/jquery-2.1.1.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/base.js"></script>
 
@@ -58,7 +58,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>添加项目</h2>
+        <h2>修改项目</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">首页</a>
@@ -70,7 +70,7 @@
             </li>
 
             <li class="active">
-                <strong>添加项目</strong>
+                <strong>项目修改</strong>
             </li>
 
         </ol>
@@ -85,7 +85,7 @@
             <div class="col-sm-10">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>填写基本信息</h5>
+                        <h5>修改项目信息</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -102,21 +102,21 @@
                         <form method="post" id="userForm" class="form-horizontal" action="">
                             {% if message %}
                                 <div class="alert alert-success">
-                                    添加项目结果 ：{{ message }}<br />
-
+                                    项目修改结果 : {{ message }}<br />
                             </div>
                             {% endif %}
+                            <span style="display:none"><input type="text" name='id' class="form-control" value="{{ id }}"></span>
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">项目名称<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="proname" name="proname" placeholder="项目名称" type="text" class="form-control" >
+                                    <input id="proname" name="proname" placeholder="项目名称"  value="{{ Pro_name }}" type="text" class="form-control"  readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">项目描述 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="prodesc" name="prodesc" placeholder="项目描述" type="text" class="form-control"  >
+                                    <input id="prodesc" name="prodesc" placeholder="项目描述" type="text" value="{{ Pro_desc }}" class="form-control"  >
                                 </div>
                             </div>
 
@@ -124,21 +124,21 @@
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">SVN地址 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="prosvn" name="prosvn" placeholder="SVN地址" type="text" class="form-control" /><span id="tishi"></span>
+                                    <input id="prosvn" name="prosvn" placeholder="SVN地址" type="text" value="{{ svn_ip }}" class="form-control" /><span id="tishi"></span>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">SVN帐号ID <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="certificateid" name="certificateid" placeholder="SVN帐号ID" type="text" class="form-control" /><span id="tishi"></span>
+                                    <input id="certificateid" name="certificateid" placeholder="SVN帐号ID" type="text" value="{{ certificateid }}" class="form-control" /><span id="tishi"></span>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">Maven参数 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="mavenpara" name="mavenpara" placeholder="Maven参数" type="text" class="form-control" /><span id="tishi"></span>
+                                    <input id="mavenpara" name="mavenpara" placeholder="Maven参数" type="text" value="{{ mavenpara }}" class="form-control" /><span id="tishi"></span>
                                 </div>
                             </div>
 
@@ -147,7 +147,7 @@
                             <div class="form-group">
                                 <label for="buildtype" class="col-sm-2 control-label">构建产物<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="buildtype" name="buildtype" type="text" placeholder="构建产物" class="form-control" >
+                                    <input id="buildtype" name="buildtype" type="text" placeholder="构建产物" value="{{ buildtype }}" class="form-control" >
                                 </div>
                             </div>
 
@@ -216,37 +216,13 @@
 </script>
 
 
-<script>
-    $(document).ready(function(){
-        $('.del').click(function(){
-            var row = $(this).closest('tr');
-            if (confirm("确定删除")) {
-            $.get(
-                    $(this).attr('value'),
-                    {},
-                    function(data){
-                        row.remove();
-                        alert(data);
-                    }
-            )}
-        });
-
-        $("tbody tr").shiftcheckbox({
-            checkboxSelector: 'input:checkbox',
-            selectAll: $('#select_all'),
-            ignoreClick: 'a'
-        });
-        $('.shiftCheckbox').shiftcheckbox();
-    });
-
-</script>
 
 <script>
 $('#userForm').validator({
     timely: 2,
     theme: "yellow_right_effect",
     rules: {
-        check_username: [/^[\w.]{3,20}$/, '大小写字母数字和下划线小数点'],
+        check_pcode: [/^[\w.]{3,20}$/, '大小写字母数字和下划线小数点'],
         type_m: function(element){
                     return  $("#M").is(":checked");
             }
@@ -295,6 +271,5 @@ $('#userForm').validator({
 });
 
 </script>
-
 
 </html>

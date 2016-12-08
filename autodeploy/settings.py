@@ -26,6 +26,7 @@ config.read(os.path.join(BASE_DIR, 'autodeploy.conf'))  # 读配置文件
 # 网站名称设置
 TITLE = config.get('base', 'cname')  # 网站标题
 URL = config.get('base', 'url')
+PROJECTPATH = config.get('base', 'projectfilepath')
 
 # ldap配置
 ldapconn = config.get('ldap', 'ldapconn')  # ldap服务器
@@ -168,7 +169,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
 
-# jenkins配置文件xml,第一个参数为描述，第二个参数为svn地址,第三个参数为svn验证id
+# jenkins配置文件xml,第一个参数为描述，第二个参数为svn地址,第三个参数为svn验证id, 第四个参数为maven参数
 
 jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
 <maven2-moduleset plugin="maven-plugin@2.14">
@@ -205,7 +206,7 @@ jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
     <groupId>com.gd.cfg</groupId>
     <artifactId>cfg</artifactId>
   </rootModule>
-  <goals>clean install -Pall,no-test,testenv</goals>
+  <goals>%s</goals>
   <aggregatorStyleBuild>true</aggregatorStyleBuild>
   <incrementalBuild>false</incrementalBuild>
   <ignoreUpstremChanges>false</ignoreUpstremChanges>

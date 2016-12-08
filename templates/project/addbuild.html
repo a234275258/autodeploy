@@ -58,7 +58,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>添加项目</h2>
+        <h2>构建项目</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">首页</a>
@@ -70,7 +70,7 @@
             </li>
 
             <li class="active">
-                <strong>添加项目</strong>
+                <strong>构建项目</strong>
             </li>
 
         </ol>
@@ -102,61 +102,30 @@
                         <form method="post" id="userForm" class="form-horizontal" action="">
                             {% if message %}
                                 <div class="alert alert-success">
-                                    添加项目结果 ：{{ message }}<br />
+                                    添加构建结果 ：{{ message }}<br />
 
                             </div>
                             {% endif %}
+
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目名称<span class="red-fonts">*</span></label>
+                                <label for="asset" class="col-sm-2 control-label">项目名</label>
                                 <div class="col-sm-8">
-                                    <input id="proname" name="proname" placeholder="项目名称" type="text" class="form-control" >
+                                    <select name="Pro_id" id="Pro_id" data-placeholder="请选择要构建的项目" class="chosen-select form-control m-b"  tabindex="2">
+                                            {% for i in projectdata %}
+                                            <option value="{{ i.id }}">{{ i.Pro_name }}</option>
+                                            {% endfor %}
+
+                                    </select>
+                                    <!--<span class="help-block m-b-none">必填</span>-->
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目描述 <span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="prodesc" name="prodesc" placeholder="项目描述" type="text" class="form-control"  >
-                                </div>
-                            </div>
-
-                            <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN地址 <span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="prosvn" name="prosvn" placeholder="SVN地址" type="text" class="form-control" /><span id="tishi"></span>
-                                </div>
-                            </div>
-                            <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN帐号ID <span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="certificateid" name="certificateid" placeholder="SVN帐号ID" type="text" class="form-control" /><span id="tishi"></span>
-                                </div>
-                            </div>
-                            <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">Maven参数 <span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="mavenpara" name="mavenpara" placeholder="Maven参数" type="text" class="form-control" /><span id="tishi"></span>
-                                </div>
-                            </div>
-
-
-                             <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="buildtype" class="col-sm-2 control-label">构建产物<span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="buildtype" name="buildtype" type="text" placeholder="构建产物" class="form-control" >
-                                </div>
-                            </div>
-
 
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <button class="btn btn-white" type="reset">取消</button>
-                                    <button id="submit_button" class="btn btn-primary" type="submit">确认保存</button>
+                                    <button id="submit_button" class="btn btn-primary" type="submit">立即构建</button>
                                 </div>
                             </div>
                         </form>
@@ -246,48 +215,19 @@ $('#userForm').validator({
     timely: 2,
     theme: "yellow_right_effect",
     rules: {
-        check_username: [/^[\w.]{3,20}$/, '大小写字母数字和下划线小数点'],
+        check_Pro_id: [/^[\d.]{1,20}$/, '数字'],
         type_m: function(element){
                     return  $("#M").is(":checked");
             }
     },
     fields: {
-        "proname": {
-            rule: "required;check_username",
+        "Pro_id": {
+            rule: "required;check_Pro_id",
             tip: "输入项目名",
             ok: "",
             msg: {required: "必须填写!"}
         },
-        "prodesc": {
-            rule: "required;length[6~50]",
-            tip: "输入项目描述",
-            ok: "",
-            msg: {required: "必须填写!"}
-        },
-        "prosvn": {
-            rule: "required",
-            tip: "输入svn地址",
-            ok: "",
-            msg: {required: "必须填写"}
-        },
-        "certificateid": {
-            rule: "required",
-            tip: "输入svn认证ID",
-            ok: "",
-            msg: {required: "必须填写"}
-        },
-        "mavenpara": {
-            rule: "required",
-            tip: "输入Maven参数",
-            ok: "",
-            msg: {required: "必须填写"}
-        },
-        "buildtype": {
-            rule: "required",
-            tip: "输入构建产物",
-            ok: "",
-            msg: {required: "必须填写"}
-        }
+
     },
     valid: function(form) {
         form.submit();

@@ -3,6 +3,7 @@ from django.db import connection
 from autodeploy.settings import logger
 from autodeploy.settings import DBHOST
 from user.models import admin, per_code, user_per, user_chpass
+from project.models import project, project_build
 from autodeploy.settings import ldapconn, basedn, ldappassword, ldapcn
 import ldap
 import ldap.modlist as modlist
