@@ -3,7 +3,7 @@ import sys
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
-# from project.models import project, project_build
+from project.models import project, project_build
 import jenkins
 
 
@@ -51,6 +51,36 @@ def add_project_build(Pro_id, Pro_name, builddate, success, file, svnversion, us
     try:
         project_build.objects.create(Pro_id=Pro_id, Pro_name=Pro_name, builddate=builddate, success=success,\
                                      file=file, svnversion=svnversion, username=username, buildlog=buildlog, buildseq=buildseq)
+        return 1
+    except:
+        return 0
+
+
+# 获取构建的数据
+def get_project_build(keyword):
+    try:
+        if not keyword:
+            recordlist = project_build.objects.all()
+        else:
+            recordlist = project_build.objects.filter(Pro_name__icontains=keyword).order_by('id')
+        return recordlist
+    except:
+        return 0
+
+
+# 更新构建表
+def update_project_build(id, Pro_id,  Pro_name, builddate, success, file, svnversion, username, buildseq):
+    try:
+        record = project_build.objects.get(id=id)
+        record.Pro_id = Pro_id
+        record.Pro_name = Pro_name
+        record.builddate = builddate
+        record.success = success
+        record.file = file
+        record.svnversion = svnversion
+        record.username = username
+        record.buildseq = buildseq
+        record.save()
         return 1
     except:
         return 0

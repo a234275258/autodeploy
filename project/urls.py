@@ -10,4 +10,5 @@ urlpatterns = patterns('user.views',
                        url(r'^buildlist/$', project_buildlist, name='project_buildlist'),
                        url(r'^buildedit/$', project_buildedit, name='project_buildedit'),
                        url(r'^builddel/$', project_builddel, name='project_builddel'),
+                       url(r'^buildlog/$', project_buildlog, name='project_buildlog'),
                        )

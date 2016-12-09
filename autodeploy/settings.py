@@ -54,6 +54,8 @@ email_use_ssl = config.getboolean('mail', 'email_use_ssl')
 jenkinsurl = config.get('jenkins', 'jenkinsurl')
 jenkinsuser = config.get('jenkins', 'jenkinsuser')
 jenkinspassword = config.get('jenkins', 'jenkinspassword')
+jenkinsip = config.get('jenkins', 'jenkinsip')
+jenkinsfileport = config.get('jenkins', 'jenkinsfileport')
 
 # window.history.go(-1),也可以使用window.history.back()
 message = '''
