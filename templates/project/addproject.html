@@ -151,6 +151,22 @@
                                 </div>
                             </div>
 
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="maillist" class="col-sm-2 control-label">邮件列表<span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="maillist" name="maillist" type="text" placeholder="邮件列表" class="form-control" >
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="scriptlist" class="col-sm-2 control-label">运行脚本<span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="scriptlist" name="scriptlist" type="text" placeholder="运行脚本" class="form-control" >
+                                </div>
+                            </div>
+
 
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
@@ -288,6 +304,20 @@ $('#userForm').validator({
             ok: "",
             msg: {required: "必须填写"}
         }
+        ,
+        "buildtype": {
+            rule: "required",
+            tip: "输入构建产物",
+            ok: "",
+            msg: {required: "必须填写"}
+        },
+        "buildtype": {
+            rule: "required",
+            tip: "输入构建产物",
+            ok: "",
+            msg: {required: "必须填写"}
+        }
+
     },
     valid: function(form) {
         form.submit();

@@ -37,13 +37,17 @@ def project_add(request):
         certificateid = request.POST.get('certificateid', False)
         mavenpara = request.POST.get('mavenpara', False)
         buildtype = request.POST.get('buildtype', False)
+        maillist = request.POST.get('maillist', False)
+        scriptlist = request.POST.get('scriptlist', False)
         if not (proname and prodesc and prosvn and buildtype):
             return HttpResponse(message % '提交数据有误')
-        result = add_project(proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username)
+        if maillist:
+            maillist = ','+maillist
+        result = add_project(proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist)
         jkserver = jenkins_tools(jenkinsurl, jenkinsuser, jenkinspassword, jenkinsconfig)  # 实例化jenkins_tools类
         jenkinsserver = jkserver.createserver()  # 创建一个jeknins 服务器对象
         if jenkinsserver:
-            jkresult = jkserver.createjob(jenkinsserver, proname, prodesc, prosvn, certificateid, mavenpara)
+            jkresult = jkserver.createjob(jenkinsserver, proname, prodesc, prosvn, certificateid, mavenpara, maillist, scriptlist)
         else:
             return HttpResponse(message % '创建失败')
         if request and jkresult:
@@ -104,6 +108,8 @@ def project_edit(request):
             certificateid = result.certificateid
             mavenpara = result.mavenpara
             buildtype = result.buildtype
+            maillist = result.maillist
+            scriptlist = result.scriptlist
             return render_to_response('project/editproj.html', locals())
         else:
             return HttpResponse(messageindex % ('记录不存在', '/project/list/'))
@@ -115,15 +121,19 @@ def project_edit(request):
         certificateid = request.POST.get('certificateid', False)
         mavenpara = request.POST.get('mavenpara', False)
         buildtype = request.POST.get('buildtype', False)
+        maillist = request.POST.get('maillist', False)
+        scriptlist = request.POST.get('scriptlist', False)
+        if maillist and maillist[0] != ",":
+            maillist = ',' + maillist
         if not (proname and prodesc and prosvn and buildtype):
             return HttpResponse(messageindex % ('提交数据有误', '/project/list/'))
-        result = update_project(id, proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username)
+        result = update_project(id, proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist)
         Pro_name = proname
         Pro_desc = prodesc
         svn_ip = prosvn
         jkserver = jenkins_tools(jenkinsurl, jenkinsuser, jenkinspassword, jenkinsconfig)
         jserver = jkserver.createserver()
-        jkresult = jkserver.editjob(jserver, proname, prodesc, prosvn, certificateid, mavenpara)
+        jkresult = jkserver.editjob(jserver, proname, prodesc, prosvn, certificateid, mavenpara, maillist, scriptlist)
         if result and jkresult:
             message = "更新成功"
         else:
@@ -234,9 +244,9 @@ def build_project(Pro_name, buildlog, buildtype):
     jenkinsserver = jkserver.createserver()  # 创建一个jeknins 服务器对象
     if jenkinsserver:
         jkresult, relog, reinfo, buildseq = jkserver.bulidjob(jenkinsserver, Pro_name)   # 接收返回三个参数，第一个为构建结果，第二个为日志，第三个为信息
+        svnversion = reinfo.get('changeSet').get('revisions')[0].get('revision')
         if jkresult: # 如果构建成功
-            svnversion = reinfo.get('changeSet').get('revisions')[0].get('revision')
-            filename = str(buildtype.split('.')[0]) + '-' + str(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))) + \
+            filename = str(buildtype.split('.')[0]) + '-' + str(time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))) + '-' +\
                        str(svnversion) + '.' + str(buildtype.split('.')[1])
             filename = PROJECTPATH + '/' + Pro_name + '/' + filename
             pkg = re.search(".*%s.*" % buildtype, relog).group(0).split(":")[1]   # 构建生成的包名

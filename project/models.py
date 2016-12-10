@@ -12,6 +12,8 @@ class project(models.Model):
     certificateid = models.CharField(max_length=50, blank=True, verbose_name='认证编号')
     mavenpara = models.CharField(max_length=200, blank=True, verbose_name='maven参数')
     buildtype = models.CharField(max_length=30, blank=True, verbose_name='构建产物')
+    maillist = models.CharField(max_length=500, blank=True, verbose_name='邮件列表')
+    scriptlist = models.CharField(max_length=500, blank=True, verbose_name='执行脚本')
     username = models.CharField(max_length=50, blank=True, verbose_name='新建用户')
 
     def __unicode__(self):

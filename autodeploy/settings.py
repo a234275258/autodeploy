@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'south',
     'vdeploy',
     'project',
+    'pjdeploy',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -171,14 +172,27 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
 
-# jenkins配置文件xml,第一个参数为描述，第二个参数为svn地址,第三个参数为svn验证id, 第四个参数为maven参数
+# jenkins配置文件xml,第一个参数为描述，第二个参数为svn地址,第三个参数为svn验证id, 第四个参数为maven参数,第五个参数为发送邮件列表，第六个参数为构建后运行脚本
 
 jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
 <maven2-moduleset plugin="maven-plugin@2.14">
   <actions/>
   <description>%s</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty>
+      <permission>hudson.model.Item.Read:zhouyu</permission>
+      <permission>hudson.model.Item.Build:zhouyu</permission>
+    </hudson.security.AuthorizationMatrixProperty>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>1</daysToKeep>
+        <numToKeep>10</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
   <scm class="hudson.scm.SubversionSCM" plugin="subversion@2.7.1">
     <locations>
       <hudson.scm.SubversionSCM_-ModuleLocation>
@@ -205,8 +219,8 @@ jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <rootModule>
-    <groupId>com.gd.cfg</groupId>
-    <artifactId>cfg</artifactId>
+    <groupId>com.gd.qrp</groupId>
+    <artifactId>qrp</artifactId>
   </rootModule>
   <goals>%s</goals>
   <aggregatorStyleBuild>true</aggregatorStyleBuild>
@@ -227,7 +241,7 @@ jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
   <reporters/>
   <publishers>
     <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.52">
-      <recipientList>$DEFAULT_RECIPIENTS,zhuweijun@cardinfo.com.cn</recipientList>
+      <recipientList>$DEFAULT_RECIPIENTS%s</recipientList>
       <configuredTriggers>
         <hudson.plugins.emailext.plugins.trigger.AlwaysTrigger>
           <email>
@@ -259,6 +273,13 @@ jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
   </publishers>
   <buildWrappers/>
   <prebuilders/>
+  <postbuilders>
+    <hudson.tasks.Shell>
+      <command>%s
+
+</command>
+    </hudson.tasks.Shell>
+  </postbuilders>
   <runPostStepsIfResult>
     <name>FAILURE</name>
     <ordinal>2</ordinal>

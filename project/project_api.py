@@ -5,13 +5,15 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 from project.models import project, project_build
 import jenkins
+import time
+from autodeploy.settings import logger
 
 
 # 添加项目
-def add_project(proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username):
+def add_project(proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist):
     try:
         project.objects.create(Pro_name=proname, Pro_desc=prodesc, svn_ip=prosvn, certificateid=certificateid, \
-                               mavenpara=mavenpara, buildtype=buildtype, username=username)
+                               mavenpara=mavenpara, buildtype=buildtype, username=username, maillist=maillist, scriptlist=scriptlist)
         return 1
     except:
         return 0
@@ -30,7 +32,7 @@ def get_project(keyword):
 
 
 # 更新项目表
-def update_project(id, Pro_name, Pro_desc, svn_ip, certificateid, mavenpara, buildtype, username):
+def update_project(id, Pro_name, Pro_desc, svn_ip, certificateid, mavenpara, buildtype, username,maillist, scriptlist):
     try:
         record = project.objects.get(id=id)
         record.Pro_name = Pro_name
@@ -39,6 +41,8 @@ def update_project(id, Pro_name, Pro_desc, svn_ip, certificateid, mavenpara, bui
         record.certificateid = certificateid
         record.mavenpara = mavenpara
         record.buildtype = buildtype
+        record.maillist = maillist
+        record.scriptlist = scriptlist
         record.username = username
         record.save()
         return 1
@@ -104,11 +108,12 @@ class jenkins_tools(object):
             return 0
 
     # 创建一个job， 传入jenkins实例，项目名，描述，svn信息，验证信息
-    def createjob(self, server, jobname, desc, svnip, verifyid, mavenpara):
+    def createjob(self, server, jobname, desc, svnip, verifyid, mavenpara, maillist, scriptlist):
         try:
-            server.create_job(jobname, self.config % (u'%s' % desc, svnip, verifyid, mavenpara))
+            server.create_job(jobname, self.config % (u'%s' % desc, svnip, verifyid, mavenpara, maillist, scriptlist))
             return 1
-        except:
+        except Exception, e:
+            logger.error(u'%s' % e)
             return 0
 
     # 构建项目
@@ -121,17 +126,19 @@ class jenkins_tools(object):
             server.build_job(jobname)
             while True:
                 try:
+                    time.sleep(20)
                     curr_build_number = server.get_job_info(jobname)['lastBuild']['number']
                 except:
                     curr_build_number = 1
                 if curr_build_number > last_build_number:
                     if not server.get_build_info(jobname, curr_build_number)['building']:  # 构建完成
                         buildlog = server.get_build_console_output(jobname, curr_build_number)  # 获取构建日志
-                        if server.get_build_info(jobname, curr_build_number)['result']:  # 构建结果
+                        if str(server.get_build_info(jobname, curr_build_number)['result']) == "SUCCESS":  # 构建结果
                             build_info = server.get_build_info(jobname, curr_build_number)
                             return 1, buildlog, build_info, curr_build_number
                         else:
-                            return 0, buildlog, 0, curr_build_number
+                            build_info = server.get_build_info(jobname, curr_build_number)
+                            return 0, buildlog, build_info, curr_build_number
         except:
             return 0, 0, 0, 0
 
@@ -144,9 +151,9 @@ class jenkins_tools(object):
             return 0
 
     # 修改项目
-    def editjob(self, server, jobname, desc, svnip, verifyid, mavenpara):
+    def editjob(self, server, jobname, desc, svnip, verifyid, mavenpara, maillist, scriptlist):
         try:
-            server.reconfig_job(jobname, self.config % (desc, svnip, verifyid, mavenpara))
+            server.reconfig_job(jobname, self.config % (desc, svnip, verifyid, mavenpara, maillist, scriptlist))
             return 1
         except:
             return 0
