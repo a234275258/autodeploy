@@ -30,7 +30,7 @@ class project_build(models.Model):
     Pro_id = models.PositiveIntegerField(blank=False, verbose_name='项目ID')
     Pro_name = models.CharField(max_length=20, unique=True, blank=False, verbose_name='项目名')
     builddate = models.DateTimeField(blank=False, verbose_name='构建日期')
-    success = models.BooleanField(blank=False, verbose_name='是否构建成功')
+    success = models.BooleanField(blank=False, verbose_name='是否构建成功0 失败 1 成功 2 构建中')
     file = models.CharField(max_length=200, blank=False, verbose_name='项目构建文件')
     svnversion = models.PositiveIntegerField(blank=False, default=0, verbose_name='svn版本号')
     username = models.CharField(max_length=50, blank=False, verbose_name='构建用户')

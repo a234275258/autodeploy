@@ -297,11 +297,11 @@ def project_buildadd(request):
         if projectdata:
             return render_to_response('project/addbuild.html', locals())
         else:
-            return HttpResponse(message % '获取数据失败')
+            return HttpResponse(messageindex % ('获取数据失败,请先添加项目', '/project/add/'))
     else:
         Pro_id = request.POST.get('Pro_id', False)
         if not (Pro_id):
-            return HttpResponse(message % '提交数据有误')
+            return HttpResponse(messageindex % ('提交数据有误', '/project/buildadd/'))
         projectdata = all_get_one('project', Pro_id)
         Pro_name = projectdata.Pro_name     # 项目名
 

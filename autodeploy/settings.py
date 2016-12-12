@@ -57,6 +57,10 @@ jenkinspassword = config.get('jenkins', 'jenkinspassword')
 jenkinsip = config.get('jenkins', 'jenkinsip')
 jenkinsfileport = config.get('jenkins', 'jenkinsfileport')
 
+# 本地配置
+localipaddr = config.get('base', 'ipaddr')
+localport = config.get('base', 'port')
+
 # window.history.go(-1),也可以使用window.history.back()
 message = '''
     <script>alert("%s"); </script>
@@ -287,3 +291,74 @@ jenkinsconfig = u'''<?xml version='1.0' encoding='UTF-8'?>
     <completeBuild>true</completeBuild>
   </runPostStepsIfResult>
 </maven2-moduleset>'''
+
+mbrc = '''apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: zhmb1
+  namespace: kube-zh
+  labels:
+    name: zhmb1
+spec:
+  replicas: 2
+  selector:
+    name: zhmb1
+  template:
+    metadata:
+      labels:
+        name: zhmb1
+    spec:
+      volumes:
+      - name: "jdk"
+        hostPath:
+          path: "/public/jdk"
+      - name: "data"
+        hostPath:
+          path: "/data/zhmb1"
+      containers:
+      - name: zhmb1
+        image: 172.19.80.103:5000/ecos
+        ports:
+        - containerPort: 8080
+        - containerPort: 8081
+        resources:
+          limits:
+            memory: 4096Mi
+        volumeMounts:
+        - name: "jdk"
+          mountPath: "/usr/local/jdk"
+        - name: "data"
+          mountPath: "/project"
+'''
+mbse = '''apiVersion: v1
+kind: Service
+metadata:
+  name: zhmb1
+  namespace: kube-zh
+  labels:
+    name: zhmb1
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    nodePort: 9999
+  selector:
+    name: zhmb1
+'''
+
+nginxmb = '''upstream mb {
+      server 172.19.80.101:15105 weight=1 max_fails=1 fail_timeout=10s;
+      server 172.19.80.102:15105 weight=1 max_fails=1 fail_timeout=10s;
+}
+server {
+   listen   15105;
+   server_name  localhost;
+   location / {
+            root  html;
+            index  index.html index.htm;
+            include /etc/nginx/conf/proxy.conf;
+            proxy_pass http://mb;
+}
+
+}
+'''

@@ -247,17 +247,24 @@ def user_edit(request):  # 修改用户
             else:
                 return HttpResponse(message % '密码为空')
 
-        if not result_ldap:  # 如果修改ldap密码失败，打印日志
-            logger.error(u'%s用户ldap密码修改失败' % username)
-        if result and result_ldap:  # 如果ldap跟数据库密码修改成功
-            if send_mail_need:  # 发送邮件
-                msg = u"""用户名：%s
+        if password != "GT1aQi1hLvnt8Q":   # 密码没有修改不对ldap进行判断
+            if not result_ldap:  # 如果修改ldap密码失败，打印日志
+                logger.error(u'%s用户ldap密码修改失败' % username)
+
+        if password != "GT1aQi1hLvnt8Q":  # 密码没有修改不对ldap进行判断
+            if result and result_ldap:  # 如果ldap跟数据库密码修改成功
+                if send_mail_need:  # 发送邮件
+                    msg = u"""用户名：%s
 密码：%s
 登陆地址: %s
 帐号资料修改成功""" % (username, '******', URL)
-                send_mail_mod(u"帐号资料修改成功", msg, str(email))
-            dm = {'message': '更新成功'}
-            return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
+                    send_mail_mod(u"帐号资料修改成功", msg, str(email))
+                dm = {'message': '更新成功'}
+                return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
+        else:
+            if result:
+                dm = {'message': '更新成功'}
+                return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
         dm = {'message': '更新失败'}
         return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
 
