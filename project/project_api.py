@@ -10,11 +10,39 @@ from autodeploy.settings import logger
 
 
 # 添加项目
-def add_project(proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist):
+def add_project(proname, prodesc, proport, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist):
     try:
-        project.objects.create(Pro_name=proname, Pro_desc=prodesc, svn_ip=prosvn, certificateid=certificateid, \
+        project.objects.create(Pro_name=proname, Pro_desc=prodesc, Pro_port=proport, svn_ip=prosvn, certificateid=certificateid, \
                                mavenpara=mavenpara, buildtype=buildtype, username=username, maillist=maillist, scriptlist=scriptlist)
         return 1
+    except:
+        return 0
+
+
+# 获取项目端口
+def get_projectport(pjname):
+    try:
+        record = project.objects.get(Pro_name=pjname)
+        return record.Pro_port
+    except:
+        return 0
+
+
+# 获取项目的构建成功的svn版本号
+def get_projectsvn(pjname):
+    try:
+        record = project_build.objects.filter(Pro_name=pjname).filter(success=1).order_by('-builddate').values('svnversion')
+        return record
+    except:
+        return 0
+
+
+# 获取项目对应svn号的构建成功文件
+def get_projectfile(pjname, svnversion):
+    try:
+        record = project_build.objects.filter(Pro_name=pjname).filter(svnversion=svnversion).filter(success=1).order_by('-builddate').values(
+            'file')[:1]
+        return record
     except:
         return 0
 
@@ -32,11 +60,12 @@ def get_project(keyword):
 
 
 # 更新项目表
-def update_project(id, Pro_name, Pro_desc, svn_ip, certificateid, mavenpara, buildtype, username,maillist, scriptlist):
+def update_project(id, Pro_name, Pro_desc, Pro_port, svn_ip, certificateid, mavenpara, buildtype, username,maillist, scriptlist):
     try:
         record = project.objects.get(id=id)
         record.Pro_name = Pro_name
         record.Pro_desc = Pro_desc
+        record.Pro_port = Pro_port
         record.svn_ip = svn_ip
         record.certificateid = certificateid
         record.mavenpara = mavenpara

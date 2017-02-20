@@ -4,12 +4,16 @@ from autodeploy.settings import logger
 from autodeploy.settings import DBHOST
 from user.models import admin, per_code, user_per, user_chpass
 from project.models import project, project_build
-from autodeploy.settings import ldapconn, basedn, ldappassword, ldapcn
+from pjdeploy.models import pjdeploy, pjrollback
+from autodeploy.settings import ldapconn, basedn, ldappassword, ldapcn, etcdip, etcdport
+from project.models import project
+from pjdeploy.models import pjdeploy
 import ldap
 import ldap.modlist as modlist
 import hashlib
 import uuid
 import time
+import etcd
 
 
 # 检测数据库是否正常
@@ -176,11 +180,12 @@ def try_int(args):
         return 1
 
 
-def check_user(username):  # 判断用户是否已存在
+def check_user(username, nowtime):  # 判断用户是否已存在
     recordlist = admin.objects.filter(username=username)
     if recordlist:
         recordlist = admin.objects.get(username=username)
         recordlist.logincount += 1
+        recordlist.lastlogin = nowtime
         recordlist.save()
         return 1
     else:
@@ -354,12 +359,101 @@ def get_user_per(keyword):
     try:
         cur = connection.cursor()
         if not keyword:
-            count = cur.execute('select a.id , a.Per_user,b.Per_name ,a.comment from user_per a left join per_code b on a.Per_code = b.Per_code')
-            recordlist  = dictfetchall(cur)
+            count = cur.execute(
+                'select a.id , a.Per_user,b.Per_name ,a.comment from user_per a left join per_code b on a.Per_code = b.Per_code')
+            recordlist = dictfetchall(cur)
         else:
-            count = cur.execute("select a.id , a.Per_user,b.Per_name ,a.comment from user_per a left join per_code b on a.Per_code = b.Per_code  where Per_user = '%s'" % keyword)
-            recordlist  = dictfetchall(cur)
+            count = cur.execute(
+                "select a.id , a.Per_user,b.Per_name ,a.comment from user_per a left join per_code b on a.Per_code = b.Per_code  where Per_user = '%s'" % keyword)
+            recordlist = dictfetchall(cur)
         cur.close()
         return count, recordlist
     except:
         return 0, 0
+
+
+# 查询最后10次登陆用户
+def last_login():
+    try:
+        return admin.objects.all().order_by('-lastlogin').values('username', 'lastlogin')[:10]
+    except:
+        return 0
+
+
+# 统计主机数
+def counthosts():
+    try:
+        client = etcd.Client(host=etcdip, port=int(etcdport))
+        basekey = '/node/'
+        count = 0
+        result = client.read(basekey)
+        for i in result.children:
+            if i.dir:
+                count += 1
+
+        return count
+    except:
+        return 0
+
+
+# 获取主机配置,返回所有主机配置列表，目前返回所有，后期机器多了可做限制
+def gethosts():
+    try:
+        client = etcd.Client(host=etcdip, port=int(etcdport))
+        basekey = '/node/'
+        result = client.read(basekey)
+        rlist = []
+        for i in result.children:
+            if i.dir:
+                cresult = client.read(i.key)
+                for j in cresult.children:
+                    if "system" in j.key:
+                        sysifno = str(j.value)
+                        sysifno = eval(sysifno)
+
+                        try:
+                            updatedate = sysifno.get("updatedate")
+                            oldtime = time.mktime(time.strptime(updatedate, "%Y-%m-%d %H:%M:%S"))
+                            timelag = time.time() - oldtime
+                            if timelag > 60:  # 如果机器1分钟都没有更新状态，代表已经掉线
+                                sysifno['line'] = 0  # 代表机器不在线
+                            else:
+                                sysifno['line'] = 1  # 代表机器在线
+                        except Exception, e:
+                            sysifno['line'] = 0  # 代表机器不在线
+                        rlist.append(sysifno)
+        return rlist
+    except:
+        return 0
+
+
+# 统计项目数
+def countproject():
+    try:
+        record = project.objects.all()
+        return record.count()
+    except:
+        return 0
+
+
+# 获取前6次部署信息
+def getdeployinfo():
+    try:
+        cur = connection.cursor()
+        cur.execute(
+            "select  Pro_name from pjdeploy where id in (select max(id) from pjdeploy group by Pro_name ) order by id desc limit 6;")
+        record = cur.fetchall()
+        resultlist = []   # 总列表
+        for i in range(len(record)):  # 查出最新有部署的6个项目名称
+
+            record1 = pjdeploy.objects.filter(Pro_name=record[i][0]).filter(success=1).order_by("-id")
+            count = record1.count()  # 查看项目总共部署了多少次
+            for j in record1:  # 取最先开始的一条
+                tempdict = '{"id":"%s","Pro_name":"%s", "username":"%s", "Publish_time":"%s","count":"%s"}' \
+                      % (j.id, j.Pro_name, j.username, j.Publish_time, count)
+                tempdict = eval(tempdict)
+                resultlist.append(tempdict)
+                break
+        return resultlist
+    except:
+        return 0

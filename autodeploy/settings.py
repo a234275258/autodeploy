@@ -61,6 +61,10 @@ jenkinsfileport = config.get('jenkins', 'jenkinsfileport')
 localipaddr = config.get('base', 'ipaddr')
 localport = config.get('base', 'port')
 
+# etcd配置
+etcdip = config.get('etcd', 'etcdip')
+etcdport = config.get('etcd', 'etcdport')
+
 # window.history.go(-1),也可以使用window.history.back()
 message = '''
     <script>alert("%s"); </script>

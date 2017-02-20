@@ -24,7 +24,7 @@ def login(request):  # 登录页面
 
 
 def is_username(username, password, email='test@enjoyfin.com', valid=1, isadmin=0):  # 检测用户并添加用户
-    if not check_user(username):  # 如果用户不否存在
+    if not check_user(username, time.strftime("%Y-%m-%d %H:%M:%S")):  # 如果用户不否存在
         temp = chartomd5(password)
         if temp:
             if add_user(username, temp, email, valid, isadmin):  # 添加用户记录

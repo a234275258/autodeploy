@@ -11,9 +11,10 @@ class pjdeploy(models.Model):
     comment = models.CharField(max_length=500, blank=False, verbose_name="发布原因")
     Publish_time = models.DateTimeField(blank=False, verbose_name="部署时间")
     replicas = models.PositiveIntegerField(blank=False, default=0, verbose_name='复本数')
-    isagent = models.BooleanField(blank=False, verbose_name='是否反向代理')
+    isagent = models.PositiveSmallIntegerField(blank=False, verbose_name='是否反向代理')
+    proport = models.PositiveIntegerField(blank=False, default=0, verbose_name='项目端口')
     file = models.CharField(max_length=200, blank=False, verbose_name='部署文件')
-    success = models.BooleanField(blank=False, verbose_name='是否部署成功0 失败 1 成功 2 部署中')
+    success = models.PositiveSmallIntegerField(blank=False, verbose_name='是否部署成功 1 成功 2 部署中')
     username = models.CharField(max_length=50, blank=False, verbose_name="操作用户")
     deploylog = models.TextField(verbose_name='部署日志')
 
@@ -35,7 +36,7 @@ class pjrollback(models.Model):
     old_file = models.CharField(max_length=200, blank=False, verbose_name='回退历史文件')
     comment = models.CharField(max_length=500, blank=False, verbose_name="回退原因")
     Publish_time = models.DateTimeField(blank=False, verbose_name="回退时间")
-    success = models.BooleanField(blank=False, verbose_name='是否回退成功0 失败 1 成功 2 部署中')
+    success = models.PositiveSmallIntegerField(blank=False, verbose_name='1 成功 2 部署中')
     username = models.CharField(max_length=50, blank=False, verbose_name="操作用户")
     rollbacklog = models.TextField(verbose_name='回退日志')
 

@@ -58,19 +58,19 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>查看项目</h2>
+        <h2>查看部署</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">仪表盘</a>
             </li>
             <li>
 
-                <a>项目管理</a>
+                <a>部署管理</a>
 
             </li>
 
             <li class="active">
-                <strong>项目列表</strong>
+                <strong>回退列表</strong>
             </li>
 
         </ol>
@@ -85,7 +85,7 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5> 查看项目 </h5>
+                    <h5> 查看回退 </h5>
                     <div class="ibox-tools">
                         <a class="collapise-link">
                             <i class="fa fa-chevron-up"></i>
@@ -101,8 +101,8 @@
 
                 <div class="ibox-content">
                     <div class="">
-                        <a href="/project/add/" class="btn btn-sm btn-primary "> 添加项目 </a>
-                        <a id="del_btn" class="btn btn-sm btn-danger "> 删除项目 </a>
+                        <a href="/pjdeploy/add/" class="btn btn-sm btn-primary "> 添加回退 </a>
+                        <a id="del_btn" class="btn btn-sm btn-danger "> 删除回退 </a>
                         <form id="search_form" method="get" action="" class="pull-right mail-search">
                             <div class="input-group">
                                 <input type="text" class="form-control input-sm" id="search_input" name="keyword" placeholder="Search">
@@ -123,13 +123,14 @@
                                 </th>
                                 <th class="text-center">ID</th>
                                 <th class="text-center">项目名称</th>
-                                <th class="text-center">项目描述</th>
-                                <th class="text-center">端口</th>
-                                <th class="text-center">SVN地址</th>
-                                <th class="text-center">认证编号</th>
-                                <th class="text-center">maven参数</th>
-                                <th class="text-center">构建产物</th>
-                                <th class="text-center">新建用户</th>
+                                <th class="text-center">回退状态</th>
+                                <th class="text-center">回退前版本</th>
+                                <th class="text-center">当前版本</th>
+                                <th class="text-center">回退前文件</th>
+                                <th class="text-center">当前文件</th>
+                                <th class="text-center">回退时间</th>
+                                <th class="text-center">日志</th>
+                                <th class="text-center">回退用户</th>
                                  <th class="text-center">操作</th>
                             </tr>
                         </thead>
@@ -141,18 +142,26 @@
                                     <input type="checkbox" name="checked" value="{{ i.id }}">
                                 </td>
                                 <td class="text-center"> {{ i.id }} </td>
-                                <td class="text-center"><a href="/project/edit/?id={{ i.id }}">{{ i.Pro_name }}</a></td>
-
-                                <td class="text-center" title="{{ i.Pro_desc }}"> {{ i.Pro_desc }} </td>
-                                <td class="text-center" title="{{ i.Pro_port }}"> {{ i.Pro_port }} </td>
-                                <td class="text-center" title="{{ i.svn_ip }}"> {{ i.svn_ip }} </td>
-                                <td class="text-center" title="{{ i.certificateid  }}"> {{ i.certificateid }} </td>
-                                <td class="text-center" title="{{ i.mavenpara }}"> {{ i.mavenpara }} </td>
-                                <td class="text-center" title="{{ i.buildtype }}"> {{ i.buildtype }} </td>
+                                <td class="text-center"><a href="/pjdeploy/rollbackedit//?id={{ i.id }}">{{ i.Pro_name }}</a></td>
+                                <td class="text-center" title="{{ i.success  }}">
+                                    {% if i.success == 1 %}
+                                       成功
+                                    {% else %}
+                                    <font color="red">项目回退中</font>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center" title="{{ i.old_version }}"> {{ i.old_version }} </td>
+                                <td class="text-center" title="{{ i.current_version }}"> {{ i.current_version }} </td>
+                                <td class="text-center" title="{{ i.current_file }}"> {{ i.current_file }} </td>
+                                <td class="text-center" title="{{ i.old_file }}"> {{ i.old_file }} </td>
+                                <td class="text-center" title="{{ i.Publish_time }}"> {{ i.Publish_time|date:"Y-m-d H:i:s" }} </td>
+                                <td class="text-center" title="回退log">
+                                    <a href="javascript:void(0);" onclick="javascript:openwindow('/pjdeploy/rollbacklog/?id={{ i.id }}','',1000,800);">点击查看</a>
+                                </td>
                                 <td class="text-center" title="{{ i.username }}"> {{ i.username }} </td>
                                 <td class="text-center">
-                                    <a href="/project/edit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
-                                    <a value="/project/del/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
+                                    <a href="/pjdeploy/rollbackedit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="/pjdeploy/rollbackdel/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
                                 </td>
                             </tr>
                                 {% endfor %}
@@ -286,7 +295,7 @@
                 }
             );
                 console.log(check_array.join(","));
-                $.post("/project/del/",
+                $.post("/pjdeploy/rollbackdel/",
                         {id: check_array.join(",")},
                         function(data){
                             $("input[name='checked']:checked").each(function() { // 遍历选中的checkbox
@@ -314,6 +323,22 @@
         });
         $('.shiftCheckbox').shiftcheckbox();
     });
+
+</script>
+
+<script type="text/javascript">
+
+function openwindow(url,name,iWidth,iHeight)
+{
+// url 转向网页的地址
+// name 网页名称，可为空
+// iWidth 弹出窗口的宽度
+// iHeight 弹出窗口的高度
+//window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+var iTop = (window.screen.height-30-iHeight)/2; //获得窗口的垂直位置;
+var iLeft = (window.screen.width-10-iWidth)/2; //获得窗口的水平位置;
+window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=yes,resizeable=yes,location=no,status=no');
+}
 
 </script>
 

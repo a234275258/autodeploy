@@ -8,6 +8,7 @@ from django.db import models
 class project(models.Model):
     Pro_name = models.CharField(max_length=20, unique=True, blank=False, verbose_name='项目名')
     Pro_desc = models.CharField(max_length=200, blank=False, verbose_name='项目描述')
+    Pro_port = models.CharField(max_length=5, blank=True, verbose_name='项目外部访问端口')
     svn_ip = models.CharField(max_length=255, blank=False, verbose_name='svnIP地址')
     certificateid = models.CharField(max_length=50, blank=True, verbose_name='认证编号')
     mavenpara = models.CharField(max_length=200, blank=True, verbose_name='maven参数')

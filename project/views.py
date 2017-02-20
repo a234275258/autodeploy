@@ -33,17 +33,18 @@ def project_add(request):
     else:
         proname = request.POST.get('proname', False)
         prodesc = request.POST.get('prodesc', False)
+        proport= request.POST.get('proport', False)
         prosvn = request.POST.get('prosvn', False)
         certificateid = request.POST.get('certificateid', False)
         mavenpara = request.POST.get('mavenpara', False)
         buildtype = request.POST.get('buildtype', False)
         maillist = request.POST.get('maillist', False)
         scriptlist = request.POST.get('scriptlist', False)
-        if not (proname and prodesc and prosvn and buildtype):
+        if not (proname and prodesc and prosvn and buildtype and proport):
             return HttpResponse(message % '提交数据有误')
         if maillist:
             maillist = ','+maillist
-        result = add_project(proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist)
+        result = add_project(proname, prodesc, proport, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist)
         jkserver = jenkins_tools(jenkinsurl, jenkinsuser, jenkinspassword, jenkinsconfig)  # 实例化jenkins_tools类
         jenkinsserver = jkserver.createserver()  # 创建一个jeknins 服务器对象
         if jenkinsserver:
@@ -104,6 +105,7 @@ def project_edit(request):
         if result:
             Pro_name = result.Pro_name
             Pro_desc = result.Pro_desc
+            Pro_port = result.Pro_port
             svn_ip = result.svn_ip
             certificateid = result.certificateid
             mavenpara = result.mavenpara
@@ -118,6 +120,7 @@ def project_edit(request):
         proname = request.POST.get('proname', False)
         prodesc = request.POST.get('prodesc', False)
         prosvn = request.POST.get('prosvn', False)
+        proport = request.POST.get('proport', False)
         certificateid = request.POST.get('certificateid', False)
         mavenpara = request.POST.get('mavenpara', False)
         buildtype = request.POST.get('buildtype', False)
@@ -125,11 +128,12 @@ def project_edit(request):
         scriptlist = request.POST.get('scriptlist', False)
         if maillist and maillist[0] != ",":
             maillist = ',' + maillist
-        if not (proname and prodesc and prosvn and buildtype):
+        if not (proname and prodesc and prosvn and buildtype and proport):
             return HttpResponse(messageindex % ('提交数据有误', '/project/list/'))
-        result = update_project(id, proname, prodesc, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist)
+        result = update_project(id, proname, prodesc, proport, prosvn, certificateid, mavenpara, buildtype, username, maillist, scriptlist)
         Pro_name = proname
         Pro_desc = prodesc
+        Pro_port = proport
         svn_ip = prosvn
         jkserver = jenkins_tools(jenkinsurl, jenkinsuser, jenkinspassword, jenkinsconfig)
         jserver = jkserver.createserver()

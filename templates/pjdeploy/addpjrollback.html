@@ -20,7 +20,7 @@
 <link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
 <link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
 <link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
-    <script src="/static/js/jquery-2.1.1.js"></script>
+<script src="/static/js/jquery-2.1.1.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/base.js"></script>
 
@@ -58,19 +58,19 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>修改项目</h2>
+        <h2>项目回退</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">首页</a>
             </li>
             <li>
 
-                <a>项目管理</a>
+                <a>项目部署</a>
 
             </li>
 
             <li class="active">
-                <strong>项目修改</strong>
+                <strong>项目回退</strong>
             </li>
 
         </ol>
@@ -85,7 +85,7 @@
             <div class="col-sm-10">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>修改项目信息</h5>
+                        <h5>填写基本信息</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -100,86 +100,71 @@
                     </div>
                     <div class="ibox-content">
                         <form method="post" id="userForm" class="form-horizontal" action="">
-                            {% if message %}
+                            {% if localmessage %}
                                 <div class="alert alert-success">
-                                    项目修改结果 : {{ message }}<br />
+                                    项目回退结果 ：{{ localmessage }}<br />
+
                             </div>
                             {% endif %}
-                            <span style="display:none"><input type="text" name='id' class="form-control" value="{{ id }}"></span>
+
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目名称<span class="red-fonts">*</span></label>
+                                <label for="asset" class="col-sm-2 control-label">项目名</label>
                                 <div class="col-sm-8">
-                                    <input id="proname" name="proname" placeholder="项目名称"  value="{{ Pro_name }}" type="text" class="form-control"  readonly >
+                                    <select name="Pro_name" id="Pro_name" data-placeholder="请选择要回退的项目" class="chosen-select form-control m-b"  tabindex="2" onchange='getsvnfile()'>
+                                            {% for i in pjlist %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
+
+                                    </select>
+                                    <!--<span class="help-block m-b-none">必填</span>-->
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目描述 <span class="red-fonts">*</span></label>
+                                <label for="name" class="col-sm-2 control-label">当前SVN版本号 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="prodesc" name="prodesc" placeholder="项目描述" type="text" value="{{ Pro_desc }}" class="form-control"  >
+                                    <input id="current_version" name="current_version" placeholder="当前SVN版本号"  type="text" class="form-control" value="{{ current_version }}" readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
+                                <label for="old_version" class="col-sm-2 control-label">历史SVN版本号 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="proport" name="proport" placeholder="项目端口" type="text" value="{{ Pro_port }}" class="form-control"  >
-                                </div>
-                            </div>
+                                    <select name="old_version" id="old_version" data-placeholder="请选择版本号" class="chosen-select form-control m-b"  tabindex="2" onchange='getoldfile()'>
+                                            {% for i in svnlist %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
 
-                            <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN地址 <span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="prosvn" name="prosvn" placeholder="SVN地址" type="text" value="{{ svn_ip }}" class="form-control" /><span id="tishi"></span>
+                                    </select>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN帐号ID <span class="red-fonts">*</span></label>
+                                <label for="current_file" class="col-sm-2 control-label">当前部署文件 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="certificateid" name="certificateid" placeholder="SVN帐号ID" type="text" value="{{ certificateid }}" class="form-control" /><span id="tishi"></span>
+                                    <input id="current_file" name="current_file" placeholder="当前部署文件" type="text" class="form-control" value="{{ current_file }}"  readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">Maven参数 <span class="red-fonts">*</span></label>
+                                <label for="old_file" class="col-sm-2 control-label">项目回退文件 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="mavenpara" name="mavenpara" placeholder="Maven参数" type="text" value="{{ mavenpara }}" class="form-control" /><span id="tishi"></span>
+                                    <input id="old_file" name="old_file" placeholder="项目回退文件" type="text" class="form-control" value="{{ old_file }}"  readonly >
                                 </div>
                             </div>
-
-
-                             <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="buildtype" class="col-sm-2 control-label">构建产物<span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="buildtype" name="buildtype" type="text" placeholder="构建产物" value="{{ buildtype }}" class="form-control" >
-                                </div>
-                            </div>
-
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="maillist" class="col-sm-2 control-label">邮件列表<span class="red-fonts">*</span></label>
+                                <label for="comment" class="col-sm-2 control-label">回退描述<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="maillist" name="maillist" type="text" placeholder="邮件列表" value="{{ maillist }}" class="form-control" >
+                                    <textarea  id="comment" name="comment" type="textarea" style="height:180px;" placeholder="回退描述" class="form-control" ></textarea>
+
                                 </div>
                             </div>
-
-                            <div class="hr-line-dashed"></div>
-                            <div class="form-group">
-                                <label for="scriptlist" class="col-sm-2 control-label">脚本列表<span class="red-fonts">*</span></label>
-                                <div class="col-sm-8">
-                                    <input id="scriptlist" name="scriptlist" type="text" placeholder="脚本列表" value="{{ scriptlist }}" class="form-control" >
-                                </div>
-                            </div>
-
-
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <button class="btn btn-white" type="reset">取消</button>
-                                    <button id="submit_button" class="btn btn-primary" type="submit">确认保存</button>
+                                    <button id="submit_button" class="btn btn-primary" type="submit">立即回退</button>
                                 </div>
                             </div>
                         </form>
@@ -240,56 +225,130 @@
 
 
 
+
+<script type="text/javascript">
+
+//加载模板下拉框选项
+function getsvnfile(){
+    var port = $('#Pro_name').val();
+    $.ajax({
+        url : '/pjdeploy/getsvnfile/',
+        type: 'POST',
+        data: { pjname:port},
+        success : function(result){
+            console.log(result);
+            console.log('success')
+            $("select[name=old_version]").empty();
+            var resultdata = result.split("=")
+            var svndata = resultdata[0].split(":")
+            console.log(svndata)
+                for (var i = 0; i < svndata.length; i++) {
+                    var option = "<option value=\"" + svndata[i]+ "\">" + svndata[i] + "</option>";
+                    $("select[name=old_version]").append(option);
+                }
+            $('#current_version').val(resultdata[1]);
+            $('#current_file').val(resultdata[2]);
+            $('#old_file').val(resultdata[3]);
+         },
+        error:function () {
+            console.log('failed');
+        }
+        });
+    }
+</script>
+
+<script type="text/javascript">
+
+//加载模板下拉框选项
+function getoldfile(){
+    var oldsvn = $('#old_version').val();
+    var porject = $('#Pro_name').val();
+    $.ajax({
+        url : '/pjdeploy/getoldfile/',
+        type: 'POST',
+        data: { pjname:porject, svn:oldsvn},
+        success : function(result1){
+            console.log(result1);
+            console.log('success')
+            $('#old_file').val(result1);
+         },
+        error:function () {
+            console.log('failed');
+        }
+        });
+    }
+</script>
+
+
+
+<script>
+    $(document).ready(function(){
+        $('.del').click(function(){
+            var row = $(this).closest('tr');
+            if (confirm("确定删除")) {
+            $.get(
+                    $(this).attr('value'),
+                    {},
+                    function(data){
+                        row.remove();
+                        alert(data);
+                    }
+            )}
+        });
+
+        $("tbody tr").shiftcheckbox({
+            checkboxSelector: 'input:checkbox',
+            selectAll: $('#select_all'),
+            ignoreClick: 'a'
+        });
+        $('.shiftCheckbox').shiftcheckbox();
+    });
+
+</script>
+
 <script>
 $('#userForm').validator({
     timely: 2,
     theme: "yellow_right_effect",
     rules: {
-        check_pcode: [/^[\w.]{3,20}$/, '大小写字母数字和下划线小数点'],
+        check_username: [/^[\w.|-]{3,20}$/, '大小写字母数字和下划线小数点'],
+        type_m: function(element){
+                    return  $("#M").is(":checked");
+            },
+
+        check_version: [/^[\d.|-]{1,20}$/, '数字'],
         type_m: function(element){
                     return  $("#M").is(":checked");
             }
     },
     fields: {
-        "proname": {
+        "Pro_name": {
             rule: "required;check_username",
             tip: "输入项目名",
             ok: "",
             msg: {required: "必须填写!"}
         },
-        "prodesc": {
-            rule: "required;length[6~50]",
-            tip: "输入项目描述",
+        "current_version": {
+            rule: "required;check_version",
+            tip: "输入当前版本号",
             ok: "",
             msg: {required: "必须填写!"}
         },
-        "proport": {
-            rule: "required;length[2~5]",
-            tip: "输入项目端口",
-            ok: "",
-            msg: {required: "必须填写!"}
-        },
-        "prosvn": {
+        "comment": {
             rule: "required",
-            tip: "输入svn地址",
+            tip: "输入回退描述",
             ok: "",
             msg: {required: "必须填写"}
         },
-        "certificateid": {
-            rule: "required",
-            tip: "输入svn认证ID",
+        "old_version": {
+            rule: "required;check_version",
+            tip: "输入历史svn",
             ok: "",
             msg: {required: "必须填写"}
         },
-        "mavenpara": {
+        "old_file": {
             rule: "required",
-            tip: "输入Maven参数",
-            ok: "",
-            msg: {required: "必须填写"}
-        },
-        "buildtype": {
-            rule: "required",
-            tip: "输入构建产物",
+            tip: "输入回退文件",
             ok: "",
             msg: {required: "必须填写"}
         }

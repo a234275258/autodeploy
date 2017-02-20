@@ -58,7 +58,7 @@
 
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-sm-10">
-        <h2>部署项目</h2>
+        <h2>修改部署</h2>
         <ol class="breadcrumb">
             <li>
                 <a href="/">首页</a>
@@ -70,7 +70,7 @@
             </li>
 
             <li class="active">
-                <strong>部署项目</strong>
+                <strong>修改部署</strong>
             </li>
 
         </ol>
@@ -85,7 +85,7 @@
             <div class="col-sm-10">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>填写基本信息</h5>
+                        <h5>修改部署信息</h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -102,33 +102,33 @@
                         <form method="post" id="userForm" class="form-horizontal" action="">
                             {% if localmessage %}
                                 <div class="alert alert-success">
-                                    项目部署结果 ：{{ localmessage }}<br />
+                                    修改项目部署结果 ：{{ localmessage }}<br />
 
                             </div>
                             {% endif %}
 
                             <div class="form-group">
-                                <label for="asset" class="col-sm-2 control-label">项目名</label>
+                                <label for="id" class="col-sm-2 control-label">部署ID <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <select name="Pro_name" id="Pro_name" data-placeholder="请选择要构建的项目" class="chosen-select form-control m-b"  tabindex="2" onchange='getport()'>
-                                            {% for i in projectdata %}
-                                            <option value="{{ i.Pro_name }}">{{ i.Pro_name }}</option>
-                                            {% endfor %}
+                                    <input id="id" name="id" placeholder="部署ID"  value="{{ id }}" type="text" class="form-control"  readonly >
 
-                                    </select>
+                                    <!--<input id="version" name="version" placeholder="SVN版本号" type="text" class="form-control"  > -->
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="Pro_name" class="col-sm-2 control-label">项目名</label>
+                                <div class="col-sm-8">
+                                    <input id="Pro_name" name="Pro_name" placeholder="项目名称"  value="{{ Pro_name }}" type="text" class="form-control"  readonly >
                                     <!--<span class="help-block m-b-none">必填</span>-->
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN版本号 <span class="red-fonts">*</span></label>
+                                <label for="version" class="col-sm-2 control-label">SVN版本号 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <select name="version" id="version" data-placeholder="请选择版本号" class="chosen-select form-control m-b"  tabindex="2">
-                                            {% for i in svnlist %}
-                                            <option value="{{ i }}">{{ i }}</option>
-                                            {% endfor %}
+                                    <input id="version" name="version" placeholder="SVN版本号"  value="{{ version }}" type="text" class="form-control"  readonly >
 
-                                    </select>
                                     <!--<input id="version" name="version" placeholder="SVN版本号" type="text" class="form-control"  > -->
                                 </div>
                             </div>
@@ -136,9 +136,9 @@
 
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">部署复本数 <span class="red-fonts">*</span></label>
+                                <label for="replicas" class="col-sm-2 control-label">部署复本数 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <select name="replicas" id="replicas" data-placeholder="部署复本数" class="chosen-select form-control m-b"  tabindex="2">
+                                    <select name="replicas" id="replicas" data-placeholder="部署复本数" value = "{{replicas}}" class="chosen-select form-control m-b"  tabindex="2">
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
@@ -155,16 +155,28 @@
 
                                 <div class="col-sm-8">
                                     <select name="isagent" id="isagent" data-placeholder="请选择要构建的项目" class="chosen-select form-control m-b"  tabindex="2">
-                                        <option value="是">是</option>
-                                        <option value="否">否</option>
+                                        {% if isagent == 1 %}
+                                            <option value="是" selected>是</option>
+                                            <option value="否">否</option>
+                                        {% else %}
+                                            <option value="是" >是</option>
+                                            <option value="否" selected>否</option>
+                                        {% endif %}
                                     </select>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="proport" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
+                                <label for="port" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="proport" name="proport" placeholder="项目端口" type="text" class="form-control" value="{{port}}" >
+                                    <input id="proport" name="proport" placeholder="项目端口" type="text" class="form-control" value="{{proport}}" readonly>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="pjfile" class="col-sm-2 control-label">项目文件 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="pjfile" name="pjfile" placeholder="项目文件" type="text" class="form-control" value="{{pjfile}}" readonly >
                                 </div>
                             </div>
 
@@ -172,15 +184,36 @@
                             <div class="form-group">
                                 <label for="comment" class="col-sm-2 control-label">部署描述<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <textarea  id="comment" name="comment" type="textarea" style="height:180px;" placeholder="部署描述" class="form-control" ></textarea>
+                                    <textarea  id="comment" name="comment" type="textarea" style="height:180px;" placeholder="部署描述" class="form-control" >{{ comment }}</textarea>
 
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="Publish_time" class="col-sm-2 control-label">部署时间 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="Publish_time" name="Publish_time" placeholder="部署时间" type="text" class="form-control" value="{{ Publish_time|date:"Y-m-d H:i:s" }}" readonly >
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="success" class="col-sm-2 control-label">部署状态 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="success" name="success" placeholder="部署状态" type="text" class="form-control" value="{% if success == 2 %}部署中{%else%}已完成{% endif %}" readonly >
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="dusername" class="col-sm-2 control-label">部署用户 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="dusername" name="dusername" placeholder="部署用户" type="text" class="form-control" value="{{ dusername }}" readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
                                     <button class="btn btn-white" type="reset">取消</button>
-                                    <button id="submit_button" class="btn btn-primary" type="submit">立即部署</button>
+                                    <button id="submit_button" class="btn btn-primary" type="submit">更改部署</button>
                                 </div>
                             </div>
                         </form>
@@ -351,5 +384,7 @@ $('#userForm').validator({
 
 </script>
 
-
+<script  type = "text/javascript" >
+     document.getElementById("replicas")[ {{ replicas|add:-1 }} ].selected=true;
+</script>
 </html>

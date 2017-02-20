@@ -1,0 +1,29 @@
+[ 2017-02-03 22:40:54 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:29:13 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:30:25 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:30:40 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:31:17 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:32:15 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:32:15 ] prodution   : ERROR    etcd服务器'unicode' object has no attribute 'get'无法连接
+[ 2017-02-04 22:33:48 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:36:56 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:37:11 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:38:22 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:38:22 ] prodution   : ERROR    etcd服务器dictionary update sequence element #0 has length 1; 2 is required无法连接
+[ 2017-02-04 22:38:41 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:38:41 ] prodution   : ERROR    etcd服务器dictionary update sequence element #0 has length 1; 2 is required无法连接
+[ 2017-02-04 22:39:36 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:39:57 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:39:57 ] prodution   : ERROR    etcd服务器dictionary update sequence element #0 has length 1; 2 is required无法连接
+[ 2017-02-04 22:40:32 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:41:21 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:41:21 ] prodution   : ERROR    etcd服务器dictionary update sequence element #0 has length 1; 2 is required无法连接
+[ 2017-02-04 22:42:32 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:43:40 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:52:51 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:54:43 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 22:55:45 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 23:04:54 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 23:05:42 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-04 23:12:13 ] prodution   : INFO     程序开始运行，初始化完成
+[ 2017-02-10 15:56:54 ] prodution   : INFO     程序开始运行，初始化完成

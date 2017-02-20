@@ -89,7 +89,7 @@
                     <h5>主机总数</h5>
                 </div>
                 <div class="ibox-content">
-                    <h1 class="no-margins"><a href="/host/list/">{{ hostcount }}</a></h1>
+                    <h1 class="no-margins"><a href="#">{{ hostscount }}</a></h1>
                     <small>All host</small>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                     <h5>在线用户</h5>
                 </div>
                 <div class="ibox-content">
-                    <h1 class="no-margins"><a href="/user/online/"> <span id="online_users">{{ onlinecount }}</span></a></h1>
+                    <h1 class="no-margins"><a href="/user/list/"> <span id="online_users">{{ onlinecount }}</span></a></h1>
 
                     <small>Online user</small>
                 </div>
@@ -191,22 +191,58 @@
                 </div>
                 <div class="ibox-content inspinia-timeline">
 
-
+                            {% if sysinfo == 0 %}
                             <div class="timeline-item">
                                 <div class="row">
                                     <div class="col-xs-5 date">
                                         <i class="fa fa-info-circle"></i>
-                                        <strong>kubernetes计算结点1</strong>
+                                        <strong>主机名:</strong>
                                         <br/>
-                                        <small class="text-navy">运行容器:19个</small>
+                                        <strong>ip:</strong>
+                                        <br/>
+                                        <small class="text-navy">类型:</small>
+                                        <br>
+                                        <small class="text-navy">运行容器:个</small>
+                                        <br/>
+                                        <small class="text-navy">主机状态:</small>
                                     </div>
                                     <div class="col-xs-7 content no-top-border">
                                         <p class="m-b-xs">资源使用简介</p>
-                                        <p>可用内存: 10G</p>
-                                        <p>CPU空闲率: 90%</p>
+                                        <p>总内存: </p>
+                                        <p>可用内存: </p>
+                                        <p>CPU空闲率: </p>
+                                        <p>总空闲磁盘: </p>
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
+
+                            {% for i in sysinfo %}
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-5 date">
+                                        <i class="fa fa-info-circle"></i>
+                                        <strong>主机名:{{ i.hostname }}</strong>
+                                        <br/>
+                                        <strong>ip:{{ i.ip }}</strong>
+                                        <br/>
+                                        <small class="text-navy">类型:{{ i.type }}</small>
+                                        <br>
+                                        <small class="text-navy">运行容器:{{ i.container }}个</small>
+                                        <br/>
+                                        <small class="text-navy">主机状态:{% if i.line == 1 %}在线{% else %}<font color="red">离线</font>{% endif %}</small>
+                                    </div>
+                                    <div class="col-xs-7 content no-top-border">
+                                        <p class="m-b-xs">资源使用简介</p>
+                                        <p>总内存: {{ i.physicalm }}</p>
+                                        <p>可用内存: {{ i.freem }}</p>
+                                        <p>CPU空闲率: {{ i.cpuidle }}%</p>
+                                        <p>总空闲磁盘: {{ i.freedisk }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+
 
 
 
@@ -234,6 +270,8 @@
                     <div>
                         <div class="feed-activity-list">
 
+                            {% for i in userlist %}
+
 
                                     <div class="feed-element">
                                         <a href="#" class="pull-left">
@@ -241,13 +279,31 @@
                                         </a>
                                         <div class="media-body ">
 
-                                                <small class="pull-right">an hour ago</small>
+                                                <small class="pull-right"><!--an hour-->
+                                                    {% if i.day != 0 %}
+                                                        {{ i.day }} days, {{ i.hours }} hours
+                                                    {% else %}
+                                                        {% if i.hours != '0' %}
+                                                            {{ i.hours }} hours, {{ i.minute }} minutes
+                                                        {% else %}
+                                                            {% if i.minute != '0' %}
+                                                                {{ i.minute }} minute, {{ i.second }} seconds
+                                                            {% else %}
+                                                                {{ i.second }} seconds
+                                                            {% endif %}
+
+                                                        {% endif %}
+
+                                                    {% endif %}
+
+                                                    ago</small>
 
                                             <strong>{{ i.username }}</strong> 登录了本系统 <br>
                                             <small class="text-muted">{{ i.lastlogin|date:"Y-m-d H:i:s" }}</small>
 
                                         </div>
                                     </div>
+                            {% endfor %}
 
 
 
@@ -265,7 +321,7 @@
 
 
 
-                                <button id="show" class="btn btn-primary btn-block m-t"><i class="fa fa-arrow-down"></i> 更多 </button>
+                            <button id="show" class="btn btn-primary btn-block m-t"><i class="fa fa-arrow-down"></i> 更多 </button>
                                 <div id='more' style="display: none">
                                     <br/>
                                     <div class="feed-activity-list">
@@ -315,27 +371,50 @@
                     </div>
                 </div>
                 <div class="ibox-content ibox-heading">
-                    <h3><i class="fa fa-user"></i> 最近10次部署记录 </h3>
-                    <small><i class="fa fa-map-marker"></i> 所有项目最近10次部署记录列表. </small>
+                    <h3><i class="fa fa-user"></i> 最近6次部署记录 </h3>
+                    <small><i class="fa fa-map-marker"></i> 所有项目最近6次部署记录列表. </small>
                 </div>
                 <div class="ibox-content inspinia-timeline">
 
-
+                    {% if pjinfo == 0 %}
                             <div class="timeline-item">
                                 <div class="row">
                                     <div class="col-xs-5 date">
                                         <i class="fa fa-info-circle"></i>
-                                        <strong>rpg项目</strong>
+                                        <strong>项目</strong>
                                         <br/>
-                                        <small class="text-navy">部署17次</small>
+                                        <small class="text-navy">部署0次</small>
                                     </div>
                                     <div class="col-xs-7 content no-top-border">
-                                        <p class="m-b-xs">最近一次部署时间</p>
-                                        <p>用户: user00001</p>
-                                        <p>日期: 2016-12-05 19:00:00</p>
+                                        <p class="m-b-xs">最近一次部署信息</p>
+                                        <p></p>
+                                        <p>部署用户: </p>
+                                        <p>部署日期: </p>
+                                        <p>部署日志: </p>
                                     </div>
                                 </div>
                             </div>
+                    {% endif %}
+
+                    {% for i in pjinfo %}
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-5 date">
+                                        <i class="fa fa-info-circle"></i>
+                                        <strong><a href="pjdeploy/edit/?id={{ i.id }}">{{ i.Pro_name }}项目</a></strong>
+                                        <br/>
+                                        <small class="text-navy">部署{{ i.count }}次</small>
+                                    </div>
+                                    <div class="col-xs-7 content no-top-border">
+                                        <p class="m-b-xs">最近一次部署信息</p>
+                                        <p></p>
+                                        <a>部署用户: <a href="/user/list/">{{ i.username }}</a></a></p>
+                                        <p>部署日期: {{ i.Publish_time }}</p>
+                                        <p>部署日志: <a href="javascript:void(0);" onclick="javascript:openwindow('/pjdeploy/deploylog/?id={{ i.id }}','',1000,800);">点击查看</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                           {% endfor %}
 
 
 
@@ -412,5 +491,20 @@ $(document).ready(function(){
 
 </script>
 
+<script type="text/javascript">
+
+function openwindow(url,name,iWidth,iHeight)
+{
+// url 转向网页的地址
+// name 网页名称，可为空
+// iWidth 弹出窗口的宽度
+// iHeight 弹出窗口的高度
+//window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+var iTop = (window.screen.height-30-iHeight)/2; //获得窗口的垂直位置;
+var iLeft = (window.screen.width-10-iWidth)/2; //获得窗口的水平位置;
+window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=yes,resizeable=yes,location=no,status=no');
+}
+
+</script>
 
 </html>

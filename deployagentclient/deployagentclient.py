@@ -7,8 +7,9 @@ import ConfigParser
 import logging.config
 import etcd
 import time
+import re
 import commands
-import sys
+import shutil
 import threading
 
 BASE_DIR = os.path.dirname(__file__)  # 程序目录
@@ -16,32 +17,90 @@ logging.config.fileConfig(os.path.join(BASE_DIR, "logger.conf"))  # 日志配制
 logger = logging.getLogger("prodution")  # 取日志标签，可选为development,prodution
 
 config = ConfigParser.ConfigParser()
-config.read(os.path.join(BASE_DIR, 'deployclient.conf'))
+config.read(os.path.join(BASE_DIR, 'deployagentclient.conf'))
 
 masterip = config.get('master', 'masterip')
 masterport = config.get('master', 'masterport')
 
 localip = config.get('local', 'localip')
 localtype = config.get('local', 'localtype')
-pjpath = config.get('local', 'pjpath')
 
 etcdip = config.get('etcd', 'etcdip')  # etcd ip地址
 etcdport = config.get('etcd', 'etcdport')  # etcd 端口
 
+nginxmb = config.get('mb', 'nginxmb')  # nginx模板文件
 
-def checkmaster():  # 检测master是否启动文件传输
-    ip = masterip
-    port = masterport
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    try:
-        s.settimeout(5)
-        result = s.connect_ex((ip, int(port)))
-        if result == 0:
+nginxconf = config.get('local', 'nginxconf')  # nginx配制文件路径
+
+upstreamip = config.get('upstreamip', 'ip').split(',')
+
+
+# 添加upstream,入参为基本upstream配置，upstream IP地址列表个数，端口，返回处理好的列表
+def addupstream(basechar, upstreamiplen, port):
+    upstreamlist = []
+    for i in range(upstreamiplen):
+        tempstr = str(basechar).replace("15105", str(port))
+        tempstr = tempstr.replace('baseip', upstreamip[i])
+        upstreamlist.append(tempstr)
+    return upstreamlist
+
+
+# 检测nginx目前项目的端口,入参为配制文件名，端口，返回结果1代表项目端口跟现有要重新部署一致，0为不一致，需要重新部署
+def checkport(filename, port):
+    f = open(filename, 'r+')
+    content = f.readlines()
+    for i in range(len(content)):
+        if str(port) in content[i]:
             return 1
+    return 0
+
+
+# 处理nginx部署，传参项目名，端口， 返回值为0或部署日志
+def nginxhander(pjname, port):
+    filename = nginxconf + '/' + pjname + '.conf'
+    if os.path.exists(filename):
+        result = checkport(filename, port)
+        if not result:
+            return nginxdeploy(filename, port)  # 重新部署
         else:
             return 0
-    except:
-        return 0
+    else:
+        return nginxdeploy(filename, port)
+
+
+def nginxdeploy(filename, port):  # 处理nginx部署，传入用户名，端口
+    nginxmbfile = os.path.join(BASE_DIR, nginxmb)
+    nginxmbtemp = filename
+    shutil.copyfile(nginxmbfile, nginxmbtemp)  # 复制文件
+    f = open(nginxmbtemp, 'r+')  # 读取文件内容
+    upstreamiplen = len(upstreamip)
+    context = f.readlines()
+    f.close()
+    upstreamconf = ""  # upstream配置
+    upstreamindex = 0  # upstream配置项在列表中的索引号
+    for i in range(len(context)):
+        context[i] = context[i].replace('mb', pjname)  # 替换项目
+        if "baseip" in context[i]:
+            upstreamconf = context[i]
+            upstreamindex = i
+        if re.search("15105", context[i]):
+            context[i] = str(context[i]).replace("15105", str(port))  # 替换端口
+    upstreamlist = addupstream(upstreamconf, upstreamiplen, port)  # 返回处理好的upstream列表
+    context.remove(context[upstreamindex])  # 先移除列表中已有的
+    for i in upstreamlist:  # 把处理好的列表插入到content列表中
+        context.insert(upstreamindex, i)
+        upstreamindex = + 1
+    print context
+    f = open(nginxmbtemp, 'w+')  # 回写文件
+    f.writelines(context)
+    f.close()
+
+    stat, res = commands.getstatusoutput("/etc/init.d/nginx configtest")  # 检测配置文件是否正确
+    if "successful" in res:  # 如果检测成功
+        stat, res = commands.getstatusoutput("/etc/init.d/nginx reload")  # 重新加载配置文件
+        return res
+    else:
+        return res
 
 
 def getfile(targetfile, localfile):
@@ -92,23 +151,6 @@ def initetcd():
         client.set(key, value)
         return 1
     except:
-        return 0
-
-
-def deployproject(pjname):  # 部署模块
-    if "-web" in pjname:  # web项
-        stat, res = commands.getstatusoutput("docker ps -a | grep \"%s\" | \
-                    grep -v 'pause' | grep -v 'Exited' | awk '{print $1}'" % (pjname))
-    else:
-        stat, res = commands.getstatusoutput("docker ps -a | grep  \"%s\"  | \
-                            grep -v 'pause' | grep -v 'Exited' | grep -v '-web' | awk '{print $1}'" % (pjname))
-    print res
-    if res:
-        stat, res1 = commands.getstatusoutput("docker restart %s" % (res))
-        logger.info("%s部署成功" % pjname)
-        return 1
-    else:
-        logger.info("%s项目没有运行在此node上" % pjname)
         return 0
 
 
@@ -181,18 +223,15 @@ def getsysteminfo(key, client):
 
 
 if __name__ == "__main__":
-    result = checkmaster()  # 检测文件服务器是否有效
-    if not result:
-        logger.error(u"文件服务器%s无法连接" % masterip)
-        sys.exit(1)
-
     result = initetcd()  # 初始化etcd
     if not result:
         logger.error(u'etcd服务器%s无法连接' % etcd)
-        sys.exit(1)
+        exit(1)
     logger.info(u"程序开始运行，初始化完成")
+
     try:
         client = etcd.Client(host=etcdip, port=int(etcdport))
+
         # 启动线程，用于收集系统信息
         key = '/node' + '/' + localtype + '-' + localip + '/systeminfo'
         t = threading.Thread(target=getsysteminfo, args=(key, client, ))
@@ -200,47 +239,31 @@ if __name__ == "__main__":
         t.start()
         basekey = '/node' + '/' + localtype + '-' + localip
         while True:
-            try:
-                result = client.read(basekey)
-                for i in result.children:
-                    if "deploy" in i.key:  # 部署
-                        print i.value
-                        deployvalue = str(i.value)
-                        deployvalue = eval(deployvalue)  # 把获取的json字符转换成字典
-                        pjname = deployvalue.get("pjname")  # 获取项目名
-                        sourcefile = deployvalue.get("file")  # 获取文件名
-                        localfile = pjpath + '/' + pjname + '/' + pjname + '.jar'  # 本地文件名为项目路径+项目名+项目名+jar
-                        print sourcefile, localfile
-                        if os.path.exists(pjpath + '/' + pjname):  # 如果项目文件存在，表示已经部署过
-                            if os.path.exists(localfile):
-                                os.remove(localfile)
-                                #os.rename(localfile,
-                                          #localfile + time.strftime("%Y-%m-%d-%H:%m:%S", time.localtime()))  # 重命名
-                        else:
-                            os.makedirs(pjpath + '/' + pjname)  # 创建目录
-                        logger.info(u"==========开始下载文件%s==============" % localfile)
-                        filestat = getfile(sourcefile, localfile)  # 下载项目文件
-                        if filestat:
-                            logger.info(u"==========文件%s下载成功==============" % localfile)
-                            result = deployproject(pjname)
-                            chuid = str(i.key).split("deploy-")[1]  # 取uuid
-                            key = basekey + "/nodelog-" + chuid
-                            time.sleep(2)
-                            print key
-                            if result:  # 部署成功
-                                client.set(key, "%s结点%s部署成功" % (localip, pjname))
-                            else:
-                                client.set(key, "%s结点没有运行%s项目" % (localip, pjname))
-                        else:
-                            logger.error(u"==========文件%s下载失败==============" % localfile)
-                        try:
-                            client.delete(i.key)
-                        except Exception, e:
-                            logger.error(u'删除键值%s错误' % e)
-                time.sleep(2)
-            except Exception, e:
-                logger.error(u'etcd键值读取错误，错误代码：%s' % e)
-
+            result = client.read(basekey)
+            for i in result.children:
+                if "deploy" in i.key:  # 部署
+                    print i.value
+                    deployvalue = str(i.value)
+                    deployvalue = eval(deployvalue)  # 把获取的json字符转换成字典
+                    pjname = deployvalue.get("pjname")
+                    port = deployvalue.get("port")
+                    logger.info("=======================================")
+                    logger.info("开始部署项目名%s,端口为%s的项目" %(pjname, port))
+                    log = nginxhander(pjname, port)
+                    # print log
+                    chuid = str(i.key).split("deploy-")[1]  # 取uuid
+                    key = basekey + "/nginxlog-" + chuid
+                    if log:  # 如果有返回日志
+                        client.set(key, log)
+                    else:
+                        client.set(key, '项目%s已经在nginx上有部署' % pjname)
+                    time.sleep(2)
+                    stat, res = commands.getstatusoutput("/usr/sbin/ss -tna | grep %s" % port)  # 端口是否有监听
+                    logger.info("项目端口%s监听状态%s" %(port, res))
+                    logger.info("项目名%s,端口为%s部署执行完成" % (pjname, port))
+                    logger.info("=======================================")
+                    client.delete(i.key)  # 删除部署完成的键值
+            time.sleep(2)  # 每隔2秒重试一次
     except Exception, e:
-        logger.error(u'程序运行错误，错误代码：%s' % e)
-        sys.exit(1)
+        logger.error(u'etcd服务器%s无法连接' % e)
+        exit(1)
