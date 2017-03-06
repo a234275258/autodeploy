@@ -1,0 +1,42 @@
+apiVersion: v1 
+kind: ReplicationController 
+metadata: 
+  name: k8smb1
+  namespace: kube-system
+  labels: 
+    name: k8smb1
+spec: 
+  replicas: 1
+  selector: 
+    name: k8smb1
+  template: 
+    metadata: 
+      labels: 
+        name: k8smb1
+    spec: 
+      volumes: 
+      - name: "jdk" 
+        hostPath: 
+          path: "/public/jdk"
+      - name: "webapps"
+        hostPath:
+          path: "/data/k8smb1/webapps"
+      - name: "logs"
+        hostPath:
+          path: "/data/k8smb1/logs"
+      containers: 
+      - name: k8smb1
+        image: 0.0.0.0:5000/test
+        ports: 
+        - containerPort: 8080
+        - containerPort: 8081
+        resources:
+          limits:
+            memory: 2048Mi
+        volumeMounts: 
+        - name: "jdk" 
+          mountPath: "/usr/local/jdk"
+        - name: "webapps" 
+          mountPath: "/usr/local/tomcat/webapps"
+        - name: "logs" 
+          mountPath: "/usr/local/tomcat/logs"

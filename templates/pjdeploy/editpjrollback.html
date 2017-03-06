@@ -137,16 +137,41 @@
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="current_file" class="col-sm-2 control-label">回退前部署文件 <span class="red-fonts">*</span></label>
+                                <label for="current_file" class="col-sm-2 control-label">回退前rpc部署文件 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="current_file" name="current_file" placeholder="回退前部署文件" type="text" class="form-control" value="{{ current_file }}"  readonly >
+                                    <input id="current_file" name="current_file" placeholder="回退前rpc部署文件" type="text" class="form-control" value="{{ current_file }}"  readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="old_file" class="col-sm-2 control-label">当前项目文件 <span class="red-fonts">*</span></label>
+                                <label for="old_file" class="col-sm-2 control-label">当前rpc部署文件 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="old_file" name="old_file" placeholder="当前项目文件" type="text" class="form-control" value="{{ old_file }}"  readonly >
+                                    <input id="old_file" name="old_file" placeholder="当前rpc部署文件" type="text" class="form-control" value="{{ old_file }}"  readonly >
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="enableweb" class="col-sm-2 control-label">是否启用web <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                   {% if enableweb == 1 %}
+                                        <input id="enableweb" name="enableweb" placeholder="是否启用web" type="text" value="是" readonly class="form-control" />
+                                  {% else %}
+                                        <input id="enableweb" name="enableweb" placeholder="是否启用web" type="text" value="否" readonly class="form-control" />
+                                  {% endif %}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="current_webfile" class="col-sm-2 control-label">回退前web部署文件 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="current_webfile" name="current_file" placeholder="回退前web部署文件" type="text" class="form-control" value="{{ current_webfile }}"  readonly >
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="old_webfile" class="col-sm-2 control-label">当前web部署文件 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="old_webfile" name="old_file" placeholder="当前web部署文件" type="text" class="form-control" value="{{ old_webfile }}"  readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>

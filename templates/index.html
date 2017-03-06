@@ -89,7 +89,7 @@
                     <h5>主机总数</h5>
                 </div>
                 <div class="ibox-content">
-                    <h1 class="no-margins"><a href="#">{{ hostscount }}</a></h1>
+                    <h1 class="no-margins"><a href="/hosts/list/">{{ hostscount }}</a></h1>
                     <small>All host</small>
                 </div>
             </div>
@@ -215,7 +215,7 @@
                                     </div>
                                 </div>
                             </div>
-                            {% endif %}
+                            {% else %}
 
                             {% for i in sysinfo %}
                             <div class="timeline-item">
@@ -242,6 +242,7 @@
                                 </div>
                             </div>
                             {% endfor %}
+                            {% endif %}
 
 
 
@@ -394,7 +395,7 @@
                                     </div>
                                 </div>
                             </div>
-                    {% endif %}
+                    {% else %}
 
                     {% for i in pjinfo %}
                             <div class="timeline-item">
@@ -415,7 +416,7 @@
                                 </div>
                             </div>
                            {% endfor %}
-
+                            {% endif %}
 
 
 

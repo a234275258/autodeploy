@@ -1,18 +1,18 @@
 apiVersion: v1 
 kind: ReplicationController 
 metadata: 
-  name: zhmb1
-  namespace: kube-ecos
+  name: k8smb1
+  namespace: kube-system
   labels: 
-    name: zhmb1
+    name: k8smb1
 spec: 
   replicas: 1
   selector: 
-    name: zhmb1 
+    name: k8smb1 
   template: 
     metadata: 
       labels: 
-        name: zhmb1 
+        name: k8smb1 
     spec: 
       volumes: 
       - name: "jdk" 
@@ -20,10 +20,10 @@ spec:
           path: "/public/jdk"
       - name: "data" 
         hostPath: 
-          path: "/data/zhmb1"
+          path: "/data/k8smb1"
       containers: 
-      - name: zhmb1 
-        image: 172.19.80.103:5000/ecos
+      - name: k8smb1 
+        image: 0.0.0.0:5000/test
         ports: 
         - containerPort: 8080
         - containerPort: 8081

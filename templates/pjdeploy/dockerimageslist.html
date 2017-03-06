@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>{{ cname }}</title>
+
+    <link rel="shortcut icon" href="/static/img/facio.ico" type="image/x-icon">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">
+<link href="/static/css/animate.css" rel="stylesheet">
+<link href="/static/css/style.css" rel="stylesheet">
+<link href="/static/css/colorbox.css" rel="stylesheet">
+<link href="/static/css/vaildator/jquery.validator.css" rel="stylesheet">
+<link href="/static/css/magnific/magnific-popup.css" rel="stylesheet">
+<link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
+<link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
+<link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
+    <script src="/static/js/jquery-2.1.1.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/base.js"></script>
+
+<!-- pop windows -->
+<script src="/static/js/jquery.colorbox.js"></script>
+
+<!-- validator js -->
+<script src="/static/js/validator/jquery.validator.js"></script>
+<script src="/static/js/validator/zh_CN.js"></script>
+<script src="/static/js/datapicker/bootstrap-datepicker.js"></script>
+
+
+
+
+    <script src="/static/js/jquery.shiftcheckbox.js"></script>
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+		{% include 'left.html' %}
+
+
+
+
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+
+
+			{% include 'bar_header.html' %}
+
+            </div>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-10">
+        <h2>docker镜像列表</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="/">仪表盘</a>
+            </li>
+            <li>
+
+                <a>项目部署</a>
+
+            </li>
+
+            <li class="active">
+                <strong>docker镜像列表</strong>
+            </li>
+
+        </ol>
+    </div>
+    <div class="col-sm-2">
+    </div>
+</div>
+
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5> docker镜像列表 </h5>
+                    <div class="ibox-tools">
+                        <a class="collapise-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <div class="">
+                        <a href="/pjdeploy/imagesadd/" class="btn btn-sm btn-primary "> 添加docker镜像 </a>
+                        <a id="del_btn" class="btn btn-sm btn-danger "> 删除docker镜像 </a>
+                        <form id="search_form" method="get" action="" class="pull-right mail-search">
+                            <div class="input-group">
+                                <input type="text" class="form-control input-sm" id="search_input" name="keyword" placeholder="Search">
+                                <div class="input-group-btn">
+                                    <button id='search_btn' type="submit" class="btn btn-sm btn-primary">
+                                        -搜索-
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <table class="table table-striped table-bordered table-hover " id="editable" >
+                        <thead>
+                            <tr>
+                                <th class="text-center">
+                                    <input type="checkbox" id="check_all" onclick="checkAll('check_all', 'checked')">
+                                </th>
+                                <th class="text-center">ID</th>
+                                <th class="text-center">镜像名称</th>
+                                <th class="text-center">镜像路径</th>
+                                 <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <tr class="gradeX">
+                                {% for i in data %}
+                                <td class="text-center">
+                                    <input type="checkbox" name="checked" value="{{ i.id }}">
+                                </td>
+                                <td class="text-center"> {{ i.id }} </td>
+                                <td class="text-center"><a href="/pjdeploy/imagesedit/?id={{ i.id }}">{{ i.dname }}</a></td>
+
+                                <td class="text-center" title="{{ i.durl }}"> {{ i.durl }} </td>
+                                <td class="text-center">
+                                    <a href="/pjdeploy/imagesedit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
+                                    <a value="/pjdeploy/imagesdel/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
+                                </td>
+                            </tr>
+                                {% endfor %}
+
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="dataTables_info" id="editable_info" role="status" aria-live="polite">
+                                Showing {{ start }} to {{ end }} of {{ count }} entries
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+    <div class="dataTables_paginate paging_simple_numbers" id="editable_paginate">
+        <ul class="pagination" style="margin-top: 0; float: right">
+
+
+                {{ pagehtml }}
+
+
+
+        </>
+    </div>
+</div>
+<script>
+    function sleep(n) { //n表示的毫秒数
+            var start = new Date().getTime();
+            while (true) if (new Date().getTime() - start > n) break;
+        }
+
+    $(document).ready(function(){
+        $('.page').click(function(){
+            var searchStr = location.search;
+            var old_href = $(this).attr('href').replace('?', '');
+            var searchArray = searchStr.split('&');
+
+            if (searchStr == ''){
+                searchStr = '?page=1'
+            }
+
+            if (searchStr.indexOf('page')>=0){
+                searchArray.pop();
+            }
+
+            searchArray.push(old_href);
+            if (searchArray.length > 1) {
+                $(this).attr('href', searchArray.join('&'));
+            }
+
+        })
+    });
+
+</script>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+	{% include 'foot.html' %}
+
+        </div>
+    </div>
+
+</body>
+    <!-- Mainly scripts -->
+<script src="/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/static/js/bootstrap-dialog.js"></script>
+<script src="/static/js/mindmup-editabletable.js"></script>
+<script src="/static/js/plugins/fullcalendar/moment.min.js"></script>
+<script src="/static/js/plugins/fullcalendar/fullcalendar.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="/static/js/inspinia.js"></script>
+<script src="/static/js/plugins/pace/pace.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/demo/peity-demo.js"></script>
+
+<script src="/static/js/base.js"></script>
+
+<!-- pop windows layer-->
+<script src="/static/js/layer/layer.js"></script>
+
+<!-- highcharts -->
+<script src="/static/js/highcharts/highcharts.js"></script>
+
+
+<script src="/static/js/dropzone/dropzone.js"></script>
+<!-- active menu -->
+<script>
+    var url_array = document.location.pathname.split("/");
+    s1 = url_array[1];
+    s2 = url_array[2];
+    if (s1 == ''){
+        $('#index').addClass('active')
+    } else {
+        $("#"+s1).addClass('active');
+        $('#'+s1+' .'+s2).addClass('active');
+    }
+</script>
+
+
+<script>
+    $(document).ready(function(){
+        $('.del').click(function(){
+            var row = $(this).closest('tr');
+            if (confirm("确定删除")) {
+            $.get(
+                    $(this).attr('value'),
+                    {},
+                    function(data){
+                        row.remove();
+                        alert(data);
+                    }
+            )}
+        });
+
+        $('#del_btn').click(function(){
+            var check_array = [];
+            if (confirm("确定删除")) {
+                $("input[name='checked']:checked").each(function() {
+                    check_array.push($(this).attr("value"))
+                }
+            );
+                console.log(check_array.join(","));
+                $.post("/pjdeploy/imagesdel/",
+                        {id: check_array.join(",")},
+                        function(data){
+                            $("input[name='checked']:checked").each(function() { // 遍历选中的checkbox
+                            n = $(this).parents("tr").index();  // 获取checkbox所在行的顺序
+                            $("table#editable").find("tr:eq("+n+")").remove() ;
+                            $("table#editable").find("tr:eq("+n+")").remove() ;
+                            });
+                            //$(".gradeX input:checked").closest("tr").remove();
+                            //
+                            alert(data);
+                            location.reload()
+
+
+                        }
+                )
+            }
+
+        });
+
+
+        $("tbody tr").shiftcheckbox({
+            checkboxSelector: 'input:checkbox',
+            selectAll: $('#select_all'),
+            ignoreClick: 'a'
+        });
+        $('.shiftCheckbox').shiftcheckbox();
+    });
+
+</script>
+
+</html>

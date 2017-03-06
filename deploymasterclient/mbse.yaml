@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata: 
-  name: zhmb1
-  namespace: kube-ecos
+  name: k8smb1
+  namespace: kube-system
   labels: 
-    name: zhmb1
+    name: k8smb1
 spec: 
   type: NodePort
   ports:
   - port: 8080
     nodePort: 9999
   selector: 
-    name: zhmb1
+    name: k8smb1

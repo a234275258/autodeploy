@@ -10,6 +10,7 @@ import time
 import commands
 import sys
 import threading
+import shutil
 
 BASE_DIR = os.path.dirname(__file__)  # 程序目录
 logging.config.fileConfig(os.path.join(BASE_DIR, "logger.conf"))  # 日志配制文件
@@ -27,6 +28,8 @@ pjpath = config.get('local', 'pjpath')
 
 etcdip = config.get('etcd', 'etcdip')  # etcd ip地址
 etcdport = config.get('etcd', 'etcdport')  # etcd 端口
+
+svnurl = config.get('svn', 'url')  # etcd 端口
 
 
 def checkmaster():  # 检测master是否启动文件传输
@@ -98,13 +101,13 @@ def initetcd():
 def deployproject(pjname):  # 部署模块
     if "-web" in pjname:  # web项
         stat, res = commands.getstatusoutput("docker ps -a | grep \"%s\" | \
-                    grep -v 'pause' | grep -v 'Exited' | awk '{print $1}'" % (pjname))
+                    grep -v 'pause' | grep -v 'Exited' | awk '{print $1}'" % pjname)
     else:
         stat, res = commands.getstatusoutput("docker ps -a | grep  \"%s\"  | \
-                            grep -v 'pause' | grep -v 'Exited' | grep -v '-web' | awk '{print $1}'" % (pjname))
-    print res
+                            grep -v 'pause' | grep -v 'Exited' | grep -v '-web' | awk '{print $1}'" % pjname)
     if res:
-        stat, res1 = commands.getstatusoutput("docker restart %s" % (res))
+        #stat, res1 = commands.getstatusoutput("docker restart %s" % (res))  # 重启容器
+        stat, res1 = commands.getstatusoutput("echo %s | xargs -I {} docker rm -f  {}" % res)  # 删除容器，让kubernetes重新拉起
         logger.info("%s部署成功" % pjname)
         return 1
     else:
@@ -114,12 +117,12 @@ def deployproject(pjname):  # 部署模块
 
 # 获取系统信息,接收两个参数，第一个为键，第二个为etcd连接对像
 def getsysteminfo(key, client):
-    hostname = ""    # 主机名
-    physicalm = ""   # 物理内存大小
-    freem = ""       # 空闲内存
-    cpuidle = ""     # 空闲cpu
-    freedisk = ""    # 空闲磁盘
-    container = ""   # 容器个数
+    hostname = ""  # 主机名
+    physicalm = ""  # 物理内存大小
+    freem = ""  # 空闲内存
+    cpuidle = ""  # 空闲cpu
+    freedisk = ""  # 空闲磁盘
+    container = ""  # 容器个数
     updatedate = ""  # 更新时间
 
     while True:
@@ -166,25 +169,74 @@ def getsysteminfo(key, client):
 
         # 拼装结果返回
         value = '{"hostname":"%s","ip":"%s","type":"%s","physicalm":"%s", "freem":"%s","cpuidle":"%s","freedisk":"%s",' \
-                '"container":"%s","updatedate":"%s"}' %(hostname, localip, localtype, physicalm, freem, cpuidle, freedisk, \
-                container, updatedate)
+                '"container":"%s","updatedate":"%s"}' % (
+                    hostname, localip, localtype, physicalm, freem, cpuidle, freedisk,
+                    container, updatedate)
         try:
             client.set(key, value)
-            logger.info("=" * 50)
-            logger.info(u"线程设置键%s，值%s成功" % (key, value))
-            logger.info("=" * 50)
+            # logger.info("=" * 50)
+            # logger.info(u"线程设置键%s，值%s成功" % (key, value))
+            # logger.info("=" * 50)
         except:
-            logger.error("=" * 50)
-            logger.error(u"线程设置键%s，值%s失败" %(key, value))
-            logger.error("=" * 50)
+            pass
+            # logger.error("=" * 50)
+            # logger.error(u"线程设置键%s，值%s失败" % (key, value))
+            # logger.error("=" * 50)
         time.sleep(5)  # 每隔5秒收集一次
 
 
+def handlerfile(sourcefile, localfile, filetype):  # 从远程下载文件到本地,入参为源文件，目标文件
+    logger.info("=" * 50)
+    logger.info(u"复制远程文件:%s到本地，文件名为：%s" % (sourcefile, localfile))
+    logger.info("=" * 50)
+    try:
+        ppath = str(os.path.split(localfile)[0])  # 取出物理路径
+        warpath = str(os.path.split(localfile)[1].split('.')[0]).strip()  # 取出war包对应的路径
+        if os.path.exists(ppath):  # 如果项目文件存在，表示已经部署过
+            if str(filetype).strip() == "war":   # 如果文件是war，需要创建logs目录
+                logspath = "%s/logs" % os.path.split(ppath)[0]
+                if not os.path.exists(logspath): # 如果不存在路径
+                    os.makedirs(logspath)  # 创建目录
+            if os.path.exists(localfile):
+                os.remove(localfile)  # 删除原有文件
+            if os.path.exists("%s/%s" % (ppath, warpath)):   # 如果webapps下面的跟war包相名目录存在就删除
+                shutil.rmtree("%s/%s" % (ppath, warpath))
+                logger.info(u'目录%s删除成功' % ("%s/%s" % (ppath, warpath)))
+                # os.rename(localfile,
+                # localfile + time.strftime("%Y-%m-%d-%H:%m:%S", time.localtime()))  # 重命名
+        else:
+            os.makedirs(ppath)  # 创建目录
+            if str(filetype).strip() == "war":   # 如果文件是war，需要创建logs目录
+                logspath = "%s/logs" % os.path.split(ppath)[0]
+                if not os.path.exists(logspath):
+                    os.makedirs(logspath)  # 创建目录
+
+        logger.info(u"开始下载文件%s" % localfile)
+        try:
+            command = """svn cat %s > %s""" % (sourcefile, localfile)  # 从svn上接取文件到本地
+            stat, res = commands.getstatusoutput(command)
+            logger.info(u"文件%s下载成功%s" % (localfile, res))
+            return 1
+        except Exception, e:
+            logger.error(u"文件%s下载失败,错误代码%s" % (localfile, e))
+            return 0
+            # filestat = getfile(sourcefile, localfile)  # 下载项目文件
+            # if filestat:
+            #     logger.info(u"==========文件%s下载成功==============" % localfile)
+            #     return 1
+            # else:
+            #     logger.error(u"==========文件%s下载失败==============" % localfile)
+            #     return 0
+    except Exception, e:
+        logger.error(u"文件%s下载失败,错误代码%s" % (localfile, e))
+        return 0
+
+
 if __name__ == "__main__":
-    result = checkmaster()  # 检测文件服务器是否有效
-    if not result:
-        logger.error(u"文件服务器%s无法连接" % masterip)
-        sys.exit(1)
+    # result = checkmaster()  # 检测文件服务器是否有效,只有当web端启用本地存文件的时候才需要
+    # if not result:
+    #     logger.error(u"文件服务器%s无法连接" % masterip)
+    #     sys.exit(1)
 
     result = initetcd()  # 初始化etcd
     if not result:
@@ -195,7 +247,7 @@ if __name__ == "__main__":
         client = etcd.Client(host=etcdip, port=int(etcdport))
         # 启动线程，用于收集系统信息
         key = '/node' + '/' + localtype + '-' + localip + '/systeminfo'
-        t = threading.Thread(target=getsysteminfo, args=(key, client, ))
+        t = threading.Thread(target=getsysteminfo, args=(key, client,))
         t.setDaemon(True)  # 设置主线程退出后，子线程一并退出
         t.start()
         basekey = '/node' + '/' + localtype + '-' + localip
@@ -204,35 +256,57 @@ if __name__ == "__main__":
                 result = client.read(basekey)
                 for i in result.children:
                     if "deploy" in i.key:  # 部署
-                        print i.value
+                        logger.info('-' * 50)
+                        logger.info(u"开始部署任务，任务的信息为%s" % str(i.value))
                         deployvalue = str(i.value)
                         deployvalue = eval(deployvalue)  # 把获取的json字符转换成字典
-                        pjname = deployvalue.get("pjname")  # 获取项目名
+                        pjname = str(deployvalue.get("pjname")).split('_')[0]  # 获取项目名,并替换掉_号后面的
+                        enableweb = int(deployvalue.get('enableweb'))  # 获取是否启用web
+                        filetype = str(deployvalue.get('filetype'))  # 获取文件类型，为jar或war
+
+                        # 处理rpc项目的文件
                         sourcefile = deployvalue.get("file")  # 获取文件名
-                        localfile = pjpath + '/' + pjname + '/' + pjname + '.jar'  # 本地文件名为项目路径+项目名+项目名+jar
-                        print sourcefile, localfile
-                        if os.path.exists(pjpath + '/' + pjname):  # 如果项目文件存在，表示已经部署过
-                            if os.path.exists(localfile):
-                                os.remove(localfile)
-                                #os.rename(localfile,
-                                          #localfile + time.strftime("%Y-%m-%d-%H:%m:%S", time.localtime()))  # 重命名
+                        if filetype.strip() == "jar":  # 部署为jar包
+                            localfile = pjpath + '/' + pjname + '/' + pjname + '.jar'  # 本地文件名为项目路径+项目名+项目名+jar
                         else:
-                            os.makedirs(pjpath + '/' + pjname)  # 创建目录
-                        logger.info(u"==========开始下载文件%s==============" % localfile)
-                        filestat = getfile(sourcefile, localfile)  # 下载项目文件
-                        if filestat:
-                            logger.info(u"==========文件%s下载成功==============" % localfile)
+                            localfile = "%s/%s/webapps/%s.war" % (pjpath, pjname,
+                                                                  str(sourcefile.split('/')[-1]).split('-')[0])  # war文件路径
+                        rpcstat = handlerfile(sourcefile, localfile, filetype)
+
+                        chuid = str(i.key).split("deploy-")[1]  # 取uuid，做为返回log的键使用
+                        key = basekey + "/nodelog-" + chuid
+                        rpcmessage = ""  # rpc项目的部署消息
+                        webmessage = ""  # web项目的部署消息
+                        if rpcstat:  # 文下载成功开始部署
                             result = deployproject(pjname)
-                            chuid = str(i.key).split("deploy-")[1]  # 取uuid
-                            key = basekey + "/nodelog-" + chuid
-                            time.sleep(2)
-                            print key
                             if result:  # 部署成功
-                                client.set(key, "%s结点%s部署成功" % (localip, pjname))
+                                rpcmessage = "%s结点%s部署成功" % (localip, pjname)
                             else:
-                                client.set(key, "%s结点没有运行%s项目" % (localip, pjname))
+                                rpcmessage = "%s结点没有运行%s项目" % (localip, pjname)
+
+                        # 处理web项目文件
+                        if enableweb:  # 启用web项目，部署web项目
+                            sourcefile = deployvalue.get("fileweb")  # 获取文件名
+                            if filetype.strip() == "jar":  # 部署为jar包
+                                localfile = "%s/%s-web/%s-web.jar" % (pjpath, pjname, pjname)  # 本地文件名为项目路径+项目名+项目名+jar
+                            else:
+                                localfile = "%s/%s-web/webapps/%s.war" % (pjpath, pjname,
+                                                                          str(sourcefile.split('/')[-1]).split('-')[0])  # war文件路径
+                            webstat = handlerfile(sourcefile, localfile, filetype)
+                            if webstat:  # 文下载成功开始部署
+                                result = deployproject("%s-web" % pjname)
+                                if result:  # 部署成功
+                                    webmessage = "%s结点%s部署成功" % (localip, "%s-web" % pjname)
+                                else:
+                                    webmessage = "%s结点没有运行%s项目" % (localip, "%s-web" % pjname)
                         else:
-                            logger.error(u"==========文件%s下载失败==============" % localfile)
+                            webmessage = "项目%s不需要web项目" % pjname
+
+                        # rpc与web都已处理完毕，回写日志
+                        client.set(key, "[ %s ]===[ %s ]" % (rpcmessage, webmessage))
+
+                        logger.info(u"任务已完成，任务的信息为%s" % str(i.value))
+                        logger.info('-' * 50)
                         try:
                             client.delete(i.key)
                         except Exception, e:

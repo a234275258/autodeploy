@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>{{ cname }}</title>
+
+    <link rel="shortcut icon" href="/static/img/facio.ico" type="image/x-icon">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">
+<link href="/static/css/animate.css" rel="stylesheet">
+<link href="/static/css/style.css" rel="stylesheet">
+<link href="/static/css/colorbox.css" rel="stylesheet">
+<link href="/static/css/vaildator/jquery.validator.css" rel="stylesheet">
+<link href="/static/css/magnific/magnific-popup.css" rel="stylesheet">
+<link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
+<link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
+<link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
+<script src="/static/js/jquery-2.1.1.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/base.js"></script>
+
+<!-- pop windows -->
+<script src="/static/js/jquery.colorbox.js"></script>
+
+<!-- validator js -->
+<script src="/static/js/validator/jquery.validator.js"></script>
+<script src="/static/js/validator/zh_CN.js"></script>
+<script src="/static/js/datapicker/bootstrap-datepicker.js"></script>
+
+
+
+
+    <script src="/static/js/jquery.shiftcheckbox.js"></script>
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+		{% include 'left.html' %}
+
+
+
+
+        <div id="page-wrapper" class="gray-bg">
+            <div class="row border-bottom">
+
+
+			{% include 'bar_header.html' %}
+
+            </div>
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-10">
+        <h2>添加docker镜像</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="/">首页</a>
+            </li>
+            <li>
+
+                <a>项目部署</a>
+
+            </li>
+
+            <li class="active">
+                <strong>添加docker镜像</strong>
+            </li>
+
+        </ol>
+    </div>
+    <div class="col-sm-2">
+    </div>
+</div>
+
+
+   <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>填写认证信息</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <form method="post" id="userForm" class="form-horizontal" action="">
+                            {% if localmessage %}
+                                <div class="alert alert-success">
+                                    添加docker镜像结果 : {{ localmessage }}<br />
+
+                            </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <label for="dname" class="col-sm-2 control-label">镜像名称<span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="dname" name="dname" placeholder="镜像名称" type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="durl" class="col-sm-2 control-label">镜像路径 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="durl" name="durl" placeholder="镜像路径" type="text" class="form-control"  >
+                                </div>
+                            </div>
+                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <div class="col-sm-4 col-sm-offset-2">
+                                    <button class="btn btn-white" type="reset">取消</button>
+                                    <button id="submit_button" class="btn btn-primary" type="submit">确认保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+	{% include 'foot.html' %}
+
+        </div>
+    </div>
+
+</body>
+    <!-- Mainly scripts -->
+<script src="/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/static/js/bootstrap-dialog.js"></script>
+<script src="/static/js/mindmup-editabletable.js"></script>
+<script src="/static/js/plugins/fullcalendar/moment.min.js"></script>
+<script src="/static/js/plugins/fullcalendar/fullcalendar.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="/static/js/inspinia.js"></script>
+<script src="/static/js/plugins/pace/pace.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/demo/peity-demo.js"></script>
+
+<script src="/static/js/base.js"></script>
+
+<!-- pop windows layer-->
+<script src="/static/js/layer/layer.js"></script>
+
+<!-- highcharts -->
+<script src="/static/js/highcharts/highcharts.js"></script>
+
+
+<script src="/static/js/dropzone/dropzone.js"></script>
+<!-- active menu -->
+<script>
+    var url_array = document.location.pathname.split("/");
+    s1 = url_array[1];
+    s2 = url_array[2];
+    if (s1 == ''){
+        $('#index').addClass('active')
+    } else {
+        $("#"+s1).addClass('active');
+        $('#'+s1+' .'+s2).addClass('active');
+    }
+</script>
+
+
+
+<script>
+$('#userForm').validator({
+    timely: 2,
+    theme: "yellow_right_effect",
+    rules: {
+        check_svnuser: [/^[\w.]{3,20}$/, '大小写字母数字和下划线小数点'],
+        type_m: function(element){
+                    return  $("#M").is(":checked");
+            }
+    },
+    fields: {
+        "dname": {
+            rule: "required;check_svnuser1",
+            tip: "输入svn用户名",
+            ok: "",
+            msg: {required: "必须填写!"}
+        },
+        "durl": {
+            rule: "required;check_svnuser1",
+            tip: "输入用户代码,不能有空格",
+            ok: "",
+            msg: {required: "必须填写!"}
+        }
+    },
+    valid: function(form) {
+        form.submit();
+    }
+});
+
+</script>
+
+
+
+</html>

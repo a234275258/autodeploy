@@ -100,52 +100,122 @@
                     </div>
                     <div class="ibox-content">
                         <form method="post" id="userForm" class="form-horizontal" action="">
-                            {% if message %}
+                            {% if localmessage %}
                                 <div class="alert alert-success">
-                                    项目修改结果 : {{ message }}<br />
+                                    项目修改结果 : {{ localmessage }}<br />
                             </div>
                             {% endif %}
                             <span style="display:none"><input type="text" name='id' class="form-control" value="{{ id }}"></span>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目名称<span class="red-fonts">*</span></label>
+                                <label for="proname" class="col-sm-2 control-label">项目名称<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="proname" name="proname" placeholder="项目名称"  value="{{ Pro_name }}" type="text" class="form-control"  readonly >
+                                    <input id="proname" name="proname" placeholder="项目名称"  value="{{ proname }}" type="text" class="form-control"  readonly >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目描述 <span class="red-fonts">*</span></label>
+                                <label for="prodesc" class="col-sm-2 control-label">项目描述 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="prodesc" name="prodesc" placeholder="项目描述" type="text" value="{{ Pro_desc }}" class="form-control"  >
+                                    <input id="prodesc" name="prodesc" placeholder="项目描述" type="text" value="{{ prodesc }}" class="form-control"  >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
+                                <label for="proport" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="proport" name="proport" placeholder="项目端口" type="text" value="{{ Pro_port }}" class="form-control"  >
+                                    <input id="proport" name="proport" placeholder="项目端口" type="text" value="{{ proport }}" class="form-control"  >
                                 </div>
                             </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="rpcmemory" class="col-sm-2 control-label">rpc容器内存大小 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="rpcmemory" id="rpcmemory" data-placeholder="rpc容器内存大小"  class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% for i in memlist %}
+                                          {% if i == rpcmemory %}
+                                            <option value="{{ i }}" selected="selected">{{ i }}M</option>
+                                          {% else %}
+                                            <option value="{{ i }}">{{ i }}M</option>
+                                          {% endif %}
+                                        {% endfor %}
 
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="enableweb" class="col-sm-2 control-label">是否启用web项目<span class="red-fonts">*</span></label>
+
+                                <div class="col-sm-8">
+                                    <select name="enableweb" id="enableweb" data-placeholder="是否启用web项目"  onchange="setweb()" class="chosen-select form-control m-b"  tabindex="2">
+                                        {% if enableweb == 1 %}
+                                            <option value="1" selected="selected">是</option>
+                                            <option value="0">否</option>
+                                        {% else %}
+                                            <option value="1" >是</option>
+                                            <option value="0" selected="selected">否</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN地址 <span class="red-fonts">*</span></label>
+                                <label for="webmemory" class="col-sm-2 control-label">web容器内存大小 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                      {% if enableweb == 0%}
+                                        <select name="webmemory" id="webmemory" data-placeholder="web容器内存大小" disabled class="chosen-select1 form-control m-b"  tabindex="2">
+                                      {% else %}
+                                        <select name="webmemory" id="webmemory" data-placeholder="web容器内存大小"  class="chosen-select1 form-control m-b"  tabindex="2">
+                                      {% endif %}
+                                      {% for i in memlist %}
+                                              {% if i == webmemory %}
+                                                <option value="{{ i }}" selected="selected">{{ i }}M</option>
+                                              {% else %}
+                                                <option value="{{ i }}">{{ i }}M</option>
+                                              {% endif %}
+                                            {% endfor %}
+                                        </select>
+
+
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="prosvn" class="col-sm-2 control-label">SVN地址 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
                                     <input id="prosvn" name="prosvn" placeholder="SVN地址" type="text" value="{{ svn_ip }}" class="form-control" /><span id="tishi"></span>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">SVN帐号ID <span class="red-fonts">*</span></label>
+                                <label for="certificateid" class="col-sm-2 control-label">SVN帐号ID <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="certificateid" name="certificateid" placeholder="SVN帐号ID" type="text" value="{{ certificateid }}" class="form-control" /><span id="tishi"></span>
+                                    <select name="certificateid" id="certificateid" data-placeholder="请选择SVN帐号ID" class="chosen-select form-control m-b"  tabindex="2">
+                                            {% for i in svnuser %}
+                                                {% if certificateid == i.svnuser %}
+                                                    <option selected="selected" value="{{ i.svnuser }}">{{ i.svnuser }}</option>
+                                                {% else %}
+                                                    <option value="{{ i.svnuser }}">{{ i.svnuser }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                    </select>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">Maven参数 <span class="red-fonts">*</span></label>
+                                <label for="mavenpara" class="col-sm-2 control-label">Maven参数 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="mavenpara" name="mavenpara" placeholder="Maven参数" type="text" value="{{ mavenpara }}" class="form-control" /><span id="tishi"></span>
+                                   <select name="mavenpara" id="mavenpara" data-placeholder="请选择Maven参数" class="chosen-select form-control m-b"  tabindex="2">
+                                            {% for i in mavenlist %}
+                                                {% if mavenpara == i.paraname %}
+                                                    <option selected="selected" value="{{ i.paraname }}">{{ i.paraname }}</option>
+                                                {% else %}
+                                                    <option value="{{ i.paraname }}">{{ i.paraname }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                    </select>
                                 </div>
                             </div>
 
@@ -239,6 +309,36 @@
 </script>
 
 
+<script>
+    function setbuildvalue1() {
+        var data = $('#proname').val()
+        var isweb = $('#enableweb').val()
+        if (data != null ||data != "") {
+            if (isweb == 1){
+                data = data.split("_")[0]
+                data = data + '.jar|' + data + '-web.jar'
+                $('#buildtype').val(data)
+            }
+            else {
+                data = data.split("_")[0]
+                data = data + '.jar'
+                $('#buildtype').val(data)
+            }
+    }
+
+
+    }
+    function setweb() {
+        var data = $('#enableweb').val()
+        if (data == 1){
+                $('#webmemory').attr("disabled",false);
+            }
+            else {
+                $('#webmemory').attr("disabled",true);
+            }
+    }
+
+</script>
 
 <script>
 $('#userForm').validator({
@@ -290,6 +390,18 @@ $('#userForm').validator({
         "buildtype": {
             rule: "required",
             tip: "输入构建产物",
+            ok: "",
+            msg: {required: "必须填写"}
+        },
+        "rpcmemory": {
+            rule: "required",
+            tip: "输入构建产物",
+            ok: "",
+            msg: {required: "必须填写"}
+        },
+        "webmemory": {
+            rule: "required",
+            tip: "输入rpc项目内存大小",
             ok: "",
             msg: {required: "必须填写"}
         }

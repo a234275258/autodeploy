@@ -151,9 +151,10 @@
                                     <font color="red">项目部署中</font>
                                     {% endif %}
                                 </td>
-                                <td class="text-center" title="{{ i.file }}"> {{ i.file }} </td>
+                                <td class="text-center" title="{{ i.file }}"> R:{{ i.file }} <br>W：{{ i.fileweb }}</td>
                                 <td class="text-center" title="{{ i.Publish_time }}"> {{ i.Publish_time|date:"Y-m-d H:i:s" }} </td>
-                                <td class="text-center" title="{{ i.replicas }}"> {{ i.replicas }} </td>
+                                <td class="text-center" title="{{ i.replicas }}"> R:{{ i.replicas }}|W:{{ i.replicasweb }} </td>
+
                                 <td class="text-center" title="{{ i.isagent }}">
                                     {% if i.isagent %}
                                         是

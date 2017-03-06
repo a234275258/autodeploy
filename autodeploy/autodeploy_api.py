@@ -1,12 +1,13 @@
 # coding: utf-8
 from django.db import connection
+from django.http import HttpResponseRedirect
 from autodeploy.settings import logger
 from autodeploy.settings import DBHOST
 from user.models import admin, per_code, user_per, user_chpass
 from project.models import project, project_build
-from pjdeploy.models import pjdeploy, pjrollback
+from pjdeploy.models import pjdeploy, pjrollback, dockerimages, kubenamespace
 from autodeploy.settings import ldapconn, basedn, ldappassword, ldapcn, etcdip, etcdport
-from project.models import project
+from project.models import project, svnauth, mavenpara
 from pjdeploy.models import pjdeploy
 import ldap
 import ldap.modlist as modlist
@@ -40,6 +41,24 @@ def is_login(request):
         return 3
     if username and isadmin:  # 管理员
         return 2
+
+
+def checklogin(func):  # 判断用户登陆的装饰器
+    def wrapper(request, *args, **kwargs):
+        try:
+            username = request.session.get('username', False)
+            isadmin = request.session.get('isadmin', False)
+        except:
+            logger.error(u'连接%s数据库错误' % DBHOST)
+            return 0
+        privage = 3  # 用户权限，3为普通用户，2为管理员
+        if not username:
+            return HttpResponseRedirect('/login/')  # 没有找到直接返回
+        if username and isadmin:  # 管理员
+            privage = 2
+        result = func(request, privage=privage, username=username, isadmin=isadmin)
+        return result
+    return wrapper
 
 
 # md5加密
@@ -396,13 +415,32 @@ def counthosts():
         return 0
 
 
-# 获取主机配置,返回所有主机配置列表，目前返回所有，后期机器多了可做限制
-def gethosts():
+# 获取主机信息并过滤
+def get_hosts(keyword):
+    hostlist = []
+    try:
+        if not keyword:
+            hostlist = gethosts(0)
+        else:
+            hostlist = gethosts(0)
+
+            print hostlist
+            for i in hostlist:
+                if str(keyword) != str(i.get('type')):
+                    hostlist.remove(i)
+        return hostlist
+    except:
+        return 0
+
+
+# 获取主机配置,返回所有主机配置列表，目前返回所有，后期机器多了可做限制,入参为获取条目数,入参值为0表不限制，主要用于区分是主页来调用还是显示列表来调用
+def gethosts(getcount):
     try:
         client = etcd.Client(host=etcdip, port=int(etcdport))
         basekey = '/node/'
         result = client.read(basekey)
         rlist = []
+        getcount = int(getcount)
         for i in result.children:
             if i.dir:
                 cresult = client.read(i.key)
@@ -419,11 +457,18 @@ def gethosts():
                                 sysifno['line'] = 0  # 代表机器不在线
                             else:
                                 sysifno['line'] = 1  # 代表机器在线
-                        except Exception, e:
+                        except:
                             sysifno['line'] = 0  # 代表机器不在线
-                        rlist.append(sysifno)
+                        if not getcount:  # 判断获取次数，如果为0执行添加列表操作
+                            rlist.append(sysifno)
+                        else:
+                            if len(rlist) == getcount:  # 如果不为0判断当前列表长度是不是跟要取的条数一样
+                                break
+                            else:
+                                rlist.append(sysifno)
         return rlist
-    except:
+    except Exception, e:
+        logger.error(u"获取主机信息出错，错误信息：%s" % e)
         return 0
 
 
@@ -443,14 +488,14 @@ def getdeployinfo():
         cur.execute(
             "select  Pro_name from pjdeploy where id in (select max(id) from pjdeploy group by Pro_name ) order by id desc limit 6;")
         record = cur.fetchall()
-        resultlist = []   # 总列表
+        resultlist = []  # 总列表
         for i in range(len(record)):  # 查出最新有部署的6个项目名称
 
             record1 = pjdeploy.objects.filter(Pro_name=record[i][0]).filter(success=1).order_by("-id")
             count = record1.count()  # 查看项目总共部署了多少次
             for j in record1:  # 取最先开始的一条
                 tempdict = '{"id":"%s","Pro_name":"%s", "username":"%s", "Publish_time":"%s","count":"%s"}' \
-                      % (j.id, j.Pro_name, j.username, j.Publish_time, count)
+                           % (j.id, j.Pro_name, j.username, j.Publish_time, count)
                 tempdict = eval(tempdict)
                 resultlist.append(tempdict)
                 break

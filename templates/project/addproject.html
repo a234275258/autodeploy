@@ -100,16 +100,16 @@
                     </div>
                     <div class="ibox-content">
                         <form method="post" id="userForm" class="form-horizontal" action="">
-                            {% if message %}
+                            {% if localmessage %}
                                 <div class="alert alert-success">
-                                    添加项目结果 ：{{ message }}<br />
+                                    添加项目结果 ：{{ localmessage }}<br />
 
                             </div>
                             {% endif %}
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">项目名称<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="proname" name="proname" placeholder="项目名称" type="text" class="form-control" >
+                                    <input id="proname" name="proname" placeholder="项目名称" type="text" class="form-control" onchange="setbuildvalue()" >
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
@@ -121,12 +121,58 @@
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
+                                <label for="proport" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
                                     <input id="proport" name="proport" placeholder="项目外部访问端口" type="text" class="form-control"  >
                                 </div>
                             </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="rpcmemory" class="col-sm-2 control-label">rpc容器内存 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="rpcmemory" id="rpcmemory" data-placeholder="rpc容器内存" class="chosen-select1 form-control m-b"  tabindex="2">
+                                        <option value="1024">1024M</option>
+                                        <option value="2048">2048M</option>
+                                        <option value="3072">3072M</option>
+                                        <option value="4096">4096M</option>
+                                        <option value="5120">5120M</option>
+                                        <option value="6144">6144M</option>
+                                        <option value="7168">7168M</option>
+                                        <option value="8192">8192M</option>
+                                        <option value="9216">9216M</option>
+                                        <option value="10240">10240M</option>
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="enableweb" class="col-sm-2 control-label">是否启用web项目<span class="red-fonts">*</span></label>
 
+                                <div class="col-sm-8">
+                                    <select name="enableweb" id="enableweb" data-placeholder="是否启用web项目" class="chosen-select form-control m-b"  onchange="setweb()" tabindex="2">
+                                        <option value="1">是</option>
+                                        <option value="0">否</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="webmemory" class="col-sm-2 control-label">web容器内存 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="webmemory" id="webmemory" data-placeholder="web容器内存大小" class="chosen-select1 form-control m-b"  tabindex="2">
+                                        <option value="1024">1024M</option>
+                                        <option value="2048">2048M</option>
+                                        <option value="3072">3072M</option>
+                                        <option value="4096">4096M</option>
+                                        <option value="5120">5120M</option>
+                                        <option value="6144">6144M</option>
+                                        <option value="7168">7168M</option>
+                                        <option value="8192">8192M</option>
+                                        <option value="9216">9216M</option>
+                                        <option value="10240">10240M</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">SVN地址 <span class="red-fonts">*</span></label>
@@ -138,14 +184,24 @@
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">SVN帐号ID <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="certificateid" name="certificateid" placeholder="SVN帐号ID" type="text" class="form-control" /><span id="tishi"></span>
+                                   <select name="certificateid" id="certificateid" data-placeholder="请选择SVN帐号ID" class="chosen-select form-control m-b"  tabindex="2">
+                                            {% for i in svnuser %}
+                                            <option value="{{ i.svnuser }}">{{ i.svnuser }}</option>
+                                            {% endfor %}
+
+                                    </select>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="name" class="col-sm-2 control-label">Maven参数 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="mavenpara" name="mavenpara" placeholder="Maven参数" type="text" class="form-control" /><span id="tishi"></span>
+                                   <select name="mavenpara" id="mavenpara" data-placeholder="请选择Maven参数" class="chosen-select form-control m-b"  tabindex="2">
+                                            {% for i in mavenlist %}
+                                            <option value="{{ i.paraname }}">{{ i.paraname }}</option>
+                                            {% endfor %}
+
+                                    </select>
                                 </div>
                             </div>
 
@@ -154,7 +210,7 @@
                             <div class="form-group">
                                 <label for="buildtype" class="col-sm-2 control-label">构建产物<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="buildtype" name="buildtype" type="text" placeholder="构建产物" class="form-control" >
+                                    <input id="buildtype" name="buildtype" type="text" placeholder="构建产物,多个用|隔开" class="form-control" >
                                 </div>
                             </div>
 
@@ -162,7 +218,7 @@
                             <div class="form-group">
                                 <label for="maillist" class="col-sm-2 control-label">邮件列表<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="maillist" name="maillist" type="text" placeholder="邮件列表" class="form-control" >
+                                    <input id="maillist" name="maillist" type="text" placeholder="邮件列表,多个用,号分隔" class="form-control" >
                                 </div>
                             </div>
 
@@ -170,7 +226,7 @@
                             <div class="form-group">
                                 <label for="scriptlist" class="col-sm-2 control-label">运行脚本<span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="scriptlist" name="scriptlist" type="text" placeholder="运行脚本" class="form-control" >
+                                    <input id="scriptlist" name="scriptlist" type="text" placeholder="运行脚本,多个用;号分隔" class="form-control" >
                                 </div>
                             </div>
 
@@ -265,6 +321,49 @@
 </script>
 
 <script>
+    function setbuildvalue() {
+        var data = $('#proname').val()
+        data = data.split("_")[0]
+        data = data + '.jar'
+        $('#buildtype').val(data)
+
+
+    }
+
+</script>
+
+<script>
+    function setbuildvalue1() {
+        var data = $('#proname').val()
+        var isweb = $('#enableweb').val()
+        if (data != null ||data != "") {
+            if (isweb == 1){
+                data = data.split("_")[0]
+                data = data + '.jar' + data + '-web.jar'
+                $('#buildtype').val(data)
+            }
+            else {
+                data = data.split("_")[0]
+                data = data + '.jar'
+                $('#buildtype').val(data)
+            }
+    }
+
+
+    }
+    function setweb() {
+        var data = $('#enableweb').val()
+        if (data == 1){
+                $('#webmemory').attr("disabled",false);
+            }
+            else {
+                $('#webmemory').attr("disabled",true);
+            }
+    }
+
+</script>
+
+<script>
 $('#userForm').validator({
     timely: 2,
     theme: "yellow_right_effect",
@@ -327,6 +426,12 @@ $('#userForm').validator({
         "buildtype": {
             rule: "required",
             tip: "输入构建产物",
+            ok: "",
+            msg: {required: "必须填写"}
+        },
+        "rpcmemory": {
+            rule: "required",
+            tip: "输入rpc项目内存大小",
             ok: "",
             msg: {required: "必须填写"}
         }

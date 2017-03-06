@@ -20,4 +20,6 @@ urlpatterns = patterns('',
     url(r'^privilege/', include('user.urlspriv')),
     url(r'project/', include('project.urls')),
     url(r'pjdeploy/', include('pjdeploy.urls')),
+    url(r'hosts/', include('hosts.urls')),
+
 )

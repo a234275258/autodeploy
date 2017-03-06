@@ -126,11 +126,12 @@
                                 <th class="text-center">项目描述</th>
                                 <th class="text-center">端口</th>
                                 <th class="text-center">SVN地址</th>
-                                <th class="text-center">认证编号</th>
-                                <th class="text-center">maven参数</th>
+                                <th class="text-center">SVN认证</th>
+                                <th class="text-center">Maven参数</th>
                                 <th class="text-center">构建产物</th>
                                 <th class="text-center">新建用户</th>
-                                 <th class="text-center">操作</th>
+                                <th class="text-center">启用web</th>
+                                <th class="text-center">操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -150,9 +151,17 @@
                                 <td class="text-center" title="{{ i.mavenpara }}"> {{ i.mavenpara }} </td>
                                 <td class="text-center" title="{{ i.buildtype }}"> {{ i.buildtype }} </td>
                                 <td class="text-center" title="{{ i.username }}"> {{ i.username }} </td>
+                                <td class="text-center" title="{{ i.enableweb }}">
+                                    {% if i.enableweb > 0 %} 是 {% else %} 否 {% endif %}  </td>
                                 <td class="text-center">
-                                    <a href="/project/edit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
-                                    <a value="/project/del/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
+
+                                    <form id="_form{{ i.id}}" method="post" action="/project/buildadd/">
+                                        <input type="hidden" name="Pro_id" value="{{ i.id}}" />
+                                        <a href="/project/edit/?id={{ i.id}}" class="btn btn-xs btn-info">编辑</a>
+                                        <a value="/project/del/?id={{ i.id}}" class="btn btn-xs btn-danger del ">删除</a>
+                                        <a onclick="document.getElementById('_form{{ i.id}}').submit();" class="btn btn-xs btn-warning email">构建</a>
+                                    </form>
+
                                 </td>
                             </tr>
                                 {% endfor %}

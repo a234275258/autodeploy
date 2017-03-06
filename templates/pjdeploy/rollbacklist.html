@@ -150,10 +150,11 @@
                                     <font color="red">项目回退中</font>
                                     {% endif %}
                                 </td>
-                                <td class="text-center" title="{{ i.old_version }}"> {{ i.old_version }} </td>
+
                                 <td class="text-center" title="{{ i.current_version }}"> {{ i.current_version }} </td>
-                                <td class="text-center" title="{{ i.current_file }}"> {{ i.current_file }} </td>
-                                <td class="text-center" title="{{ i.old_file }}"> {{ i.old_file }} </td>
+                                <td class="text-center" title="{{ i.old_version }}"> {{ i.old_version }} </td>
+                                <td class="text-center" title="{{ i.current_file }}"> R:{{ i.current_file }}<br>W:{{ i.current_webfile }} </td>
+                                <td class="text-center" title="{{ i.old_file }}"> R:{{ i.old_file }}<br>W:{{ i.old_webfile }} </td>
                                 <td class="text-center" title="{{ i.Publish_time }}"> {{ i.Publish_time|date:"Y-m-d H:i:s" }} </td>
                                 <td class="text-center" title="回退log">
                                     <a href="javascript:void(0);" onclick="javascript:openwindow('/pjdeploy/rollbacklog/?id={{ i.id }}','',1000,800);">点击查看</a>

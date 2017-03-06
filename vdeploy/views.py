@@ -54,7 +54,7 @@ def index(request):
             i["second"] = second
         hostscount = counthosts()
         projectcount = countproject()
-        sysinfo = gethosts()   # 获取系统信息
+        sysinfo = gethosts(4)   # 获取系统信息，取4条信息
         pjinfo = getdeployinfo()  # 获取最近6次项目部署记录
         return render(request, 'index.html', locals())
     else:

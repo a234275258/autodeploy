@@ -6,3 +6,4 @@ python-etcd==0.4.3
 python-jenkins==0.4.13
 python-ldap==2.4.22
 South==1.0.2
+uWSGI==2.0.14

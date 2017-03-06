@@ -98,29 +98,39 @@
                             </a>
                         </div>
                     </div>
-                    <div class="ibox-content">
-                        <form method="post" id="userForm" class="form-horizontal" action="">
-                            {% if message %}
+                    <div class="ibox-content" onload="Init()">
+                        <form method="post" id="userForm" name="userForm" class="form-horizontal" action="">
+                            {% if localmessage %}
                                 <div class="alert alert-success">
-                                    添加构建结果 ：{{ message }}<br />
+                                    添加构建结果 ：{{ localmessage }}<br />
 
                             </div>
                             {% endif %}
 
                             <div class="form-group">
-                                <label for="asset" class="col-sm-2 control-label">项目名</label>
+                                <label for="proname" class="col-sm-2 control-label">项目名</label>
                                 <div class="col-sm-8">
-                                    <select name="Pro_id" id="Pro_id" data-placeholder="请选择要构建的项目" class="chosen-select form-control m-b"  tabindex="2">
-                                            {% for i in projectdata %}
-                                            <option value="{{ i.id }}">{{ i.Pro_name }}</option>
-                                            {% endfor %}
-
-                                    </select>
+                                    <input data-tip="输入项目名"  id="proname" name="proname" placeholder="搜索项目名" class="form-control"  type="text" onkeyup="SelectTip(0)">
                                     <!--<span class="help-block m-b-none">必填</span>-->
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="Pro_id" class="col-sm-2 control-label">项目名</label>
+                                <div class="col-sm-8">
+                                    <span id="demo">
+                                    <select id="Pro_id" name="Pro_id" class="form-control m-b"  size="12">
+                                    <!--<select name="Pro_id" id="Pro_id" data-placeholder="请选择要构建的项目" class="chosen-select form-control m-b"  tabindex="2">-->
+                                            {% for i in projectdata %}
+                                            <option value="{{ i.id }}">{{ i.Pro_name }}</option>
+                                            {% endfor %}
 
+
+                                    </select>
+                                    </span>
+                                    <!--<span class="help-block m-b-none">必填</span>-->
+                                </div>
+                            </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <div class="col-sm-4 col-sm-offset-2">
@@ -235,6 +245,33 @@ $('#userForm').validator({
 });
 
 </script>
+
+<script language="javascript">
+    var TempArr=[];//存贮option
+
+
+    //初始化数据
+    var SelectObj=document.userForm.elements["Pro_id"]  // 获取下拉框对像
+    /*先将数据存入数组*/
+    with(SelectObj)
+    for(var i=0;i<length;i++)TempArr[i]=[options[i].text,options[i].value]  // 把下拉框中的列表存入临时数组
+
+
+    function SelectTip(flag){
+        var TxtObj=document.userForm.elements["proname"]
+        var SelectObj=document.getElementById("demo")
+        var Arr=[]
+        with(SelectObj){
+            var SelectHTML=innerHTML.match(/<[^>]*>/)[0]  //正则匹配
+             for(i=0;i<TempArr.length;i++)
+                if(TempArr[i][0].indexOf(TxtObj.value)==0||flag)//若找到以输入值内容开头的，添option。若flag为true,对下拉框初始化
+                Arr[Arr.length]="<option value='"+TempArr[i][1]+"'>"+TempArr[i][0]+"</option>"
+                innerHTML=SelectHTML+Arr.join()+"</SELECT>"
+                // console.log(innerHTML)
+    }
+}
+</script>
+
 
 
 </html>

@@ -35,7 +35,9 @@
 
 
 
-    <script src="/static/js/jquery.shiftcheckbox.js"></script>
+ <link href="/static/css/plugins/datepicker/datepicker3.css" rel="stylesheet">
+ <link href="/static/css/plugins/chosen/chosen.css" rel="stylesheet">
+ <script src="/static/js/plugins/chosen/chosen.jquery.js"></script>
 
 </head>
 
@@ -136,25 +138,128 @@
 
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="replicas" class="col-sm-2 control-label">部署复本数 <span class="red-fonts">*</span></label>
+                                <label for="replicas" class="col-sm-2 control-label">部署rpc复本数 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <select name="replicas" id="replicas" data-placeholder="部署复本数" value = "{{replicas}}" class="chosen-select form-control m-b"  tabindex="2">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
+                                    <select name="replicas" id="replicas" data-placeholder="部署rpc复本数"  class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% for i in replist %}
+                                        {% if i == replicas %}
+                                        <option value="{{ i }}" selected>{{ i }}</option>
+                                        {% else %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                        {% endif %}
+                                        {% endfor %}
                                     </select>
                                 </div>
                             </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="rmemory" class="col-sm-2 control-label">部署rpc内存大小 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="rmemory" id="rmemory" data-placeholder="部署rpc内存大小"  class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% for i in memlist %}
+                                          {% if i == rmemory %}
+                                            <option value="{{ i }}" selected="selected">{{ i }}M</option>
+                                          {% else %}
+                                            <option value="{{ i }}">{{ i }}M</option>
+                                          {% endif %}
+                                        {% endfor %}
 
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="dimages" class="col-sm-2 control-label">docker镜像选择 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="dimages" id="dimages" data-placeholder="docker镜像选择"  class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% for i in dockerlist %}
+                                        {% if i.id == dimages %}
+                                        <option value="{{ i.id }}" selected>{{ i.dname }}</option>
+                                        {% else %}
+                                        <option value="{{ i.id }}">{{ i.dname }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
 
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="kubename" class="col-sm-2 control-label">名称空间选择 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="kubename" id="kubename" data-placeholder="名称空间选择" class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% for i in kubelist %}
+                                         {% if i.id == kubename %}
+                                        <option value="{{ i.id }}" selected>{{ i.kname }}</option>
+                                        {% else %}
+                                        <option value="{{ i.id }}">{{ i.kname }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="enableweb" class="col-sm-2 control-label">是否启用web<span class="red-fonts">*</span></label>
+
+                                <div class="col-sm-8">
+
+                                        {% if enableweb == 1 %}
+                                        <input id="enableweb" name="enableweb" placeholder="是否启用web" type="text" value="是" readonly class="form-control" />
+                                        {% else %}
+                                        <input id="enableweb" name="enableweb" placeholder="是否启用web" type="text" value="否" readonly class="form-control" />
+                                        {% endif %}
+
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="replicasweb" class="col-sm-2 control-label">部署web复本数 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    {% if enableweb == 1 %}
+                                    <select name="replicasweb" id="replicasweb" data-placeholder="部署web复本数"   class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% for i in replist %}
+                                        {% if i == replicasweb %}
+                                        <option value="{{ i }}" selected>{{ i }}</option>
+                                        {% else %}
+                                        <option value="{{ i }}">{{ i }}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    {% else %}
+                                    <input id="replicasweb" name="replicasweb" placeholder="部署web复本数" type="text" value="0" readonly class="form-control"  >
+
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="wmemory" class="col-sm-2 control-label">部署web内存大小 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    {% if enableweb == 1 %}
+                                        <select name="wmemory" id="wmemory" data-placeholder="部署web内存大小" value="{{ wmemory }}M" class="chosen-select1 form-control m-b"  tabindex="2">
+                                      {% for i in memlist %}
+                                              {% if i == wmemory %}
+                                                <option value="{{ i }}" selected="selected">{{ i }}M</option>
+                                              {% else %}
+                                                <option value="{{ i }}">{{ i }}M</option>
+                                              {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    {% else %}
+                                         <input id="wmemory" name="wmemory" placeholder="部署web内存大小" type="text" value="0" readonly class="form-control" />
+                                    {% endif %}
+
+                                </div>
+                            </div>
                              <div class="hr-line-dashed"></div>
                             <div class="form-group">
                                 <label for="isagent" class="col-sm-2 control-label">是否反向代理<span class="red-fonts">*</span></label>
 
                                 <div class="col-sm-8">
-                                    <select name="isagent" id="isagent" data-placeholder="请选择要构建的项目" class="chosen-select form-control m-b"  tabindex="2">
+                                    <select name="isagent" id="isagent" data-placeholder="是否反向代理" class="chosen-select1 form-control m-b" onchange="setagent()" tabindex="2">
                                         {% if isagent == 1 %}
                                             <option value="是" selected>是</option>
                                             <option value="否">否</option>
@@ -165,18 +270,77 @@
                                     </select>
                                 </div>
                             </div>
+                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="agentxy" class="col-sm-2 control-label">代理协议 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <select name="agentxy" id="agentxy" data-placeholder="代理协议" value="{{ agentxy }}" class="chosen-select1 form-control m-b"  tabindex="2">
+                                        {% if agentxy == "tcp" %}
+                                        <option value="http">http</option>
+                                        <option value="tcp" selected="selected">tcp</option>
+                                        {% else %}
+                                        <option value="http" selected="selected">http</option>
+                                        <option value="tcp" >tcp</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                             <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="agentm" class="col-sm-2 control-label">反向代理机器 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    {% if isagent == 1 %}
+                                        <select name="agentm" id="agentm" data-placeholder="反向代理机器" class="chosen-select1 form-control m-b"  tabindex="2">
+                                    {% else %}
+                                        <select name="agentm" id="agentm" data-placeholder="反向代理机器" disabled class="chosen-select1 form-control m-b"  tabindex="2">
+                                     {% endif %}
+                                        {% for i in nginxlist %}
+                                            {% if agentm == i.ip %}
+                                        <option value="{{ i.ip }}" selected>{{ i.hostname }}</option>
+                                            {% else %}
+                                        <option value="{{ i.ip }}">{{ i.hostname }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="port" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
+                                <label for="nodem" class="col-sm-2 control-label">负载机器选择</label>
+                                <div class="col-sm-8">
+                                   <select name="nodem" id="nodem" data-placeholder="负载机器选择" class="chosen-select form-control m-b" multiple  tabindex="2">
+
+                                       {% for i in nodelist %}
+                                            {% if i.selected == '1' %}
+                                                <option value="{{ i.ip }}" selected>{{ i.hostname }}</option>
+                                            {% else%}
+                                                <option value="{{ i.ip }}" >{{ i.hostname }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <span class="help-block m-b-none"> 后端负载机器可多选  </span>
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="proport" class="col-sm-2 control-label">项目端口 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
                                     <input id="proport" name="proport" placeholder="项目端口" type="text" class="form-control" value="{{proport}}" readonly>
                                 </div>
                             </div>
                             <div class="hr-line-dashed"></div>
                             <div class="form-group">
-                                <label for="pjfile" class="col-sm-2 control-label">项目文件 <span class="red-fonts">*</span></label>
+                                <label for="pjfile" class="col-sm-2 control-label">rpc项目文件 <span class="red-fonts">*</span></label>
                                 <div class="col-sm-8">
-                                    <input id="pjfile" name="pjfile" placeholder="项目文件" type="text" class="form-control" value="{{pjfile}}" readonly >
+                                    <input id="pjfile" name="pjfile" placeholder="rpc项目文件" type="text" class="form-control" value="{{pjfile}}" readonly >
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label for="fileweb" class="col-sm-2 control-label">web项目文件 <span class="red-fonts">*</span></label>
+                                <div class="col-sm-8">
+                                    <input id="fileweb" name="fileweb" placeholder="web项目文件" type="text" class="form-control" value="{{ fileweb }}" readonly >
                                 </div>
                             </div>
 
@@ -231,7 +395,7 @@
     </div>
 
 </body>
-    <!-- Mainly scripts -->
+       <!-- Mainly scripts -->
 <script src="/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
 <script src="/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
 <script src="/static/js/bootstrap-dialog.js"></script>
@@ -276,6 +440,22 @@
 
 
 <script type="text/javascript">
+
+//判断是否开启agent
+function setagent() {
+    var agent = $('#isagent').val()
+    if (agent == "是"){
+        $('#agentxy').attr("disabled",false);
+        $('#agentm').attr("disabled",false);
+        $('#nodem').attr("disabled",false);
+    }
+    else{
+        $('#agentxy').attr("disabled",true);
+        $('#agentm').attr("disabled",true);
+        $('#nodem').attr("disabled",true);
+    }
+
+}
 
 //加载模板下拉框选项
 function getport(){
@@ -381,7 +561,17 @@ $('#userForm').validator({
         form.submit();
     }
 });
+var config = {
+                '.chosen-select'           : {},
+                '.chosen-select-deselect'  : {allow_single_deselect:true},
+                '.chosen-select-no-single' : {disable_search_threshold:10},
+                '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+                '.chosen-select-width'     : {width:"95%"}
+            };
 
+for (var selector in config) {
+    $(selector).chosen(config[selector]);
+}
 </script>
 
 <script  type = "text/javascript" >

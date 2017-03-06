@@ -119,10 +119,10 @@ def user_add(request):  # 添加用户
 恭喜帐号开通成功""" % (username, '******', URL)
                 print msg
                 send_mail_mod(u"恭喜帐号开通成功", msg, str(email))
-            return render(request, 'user/adduser.html', {'cname': cname, 'message': message1, 'username': username, 'isadmin':isadmin})
+            return render(request, 'user/adduser.html', {'cname': cname, 'localmessage': message1, 'username': username, 'isadmin':isadmin})
         else:
             message1 = username + '添加失败'
-            return render(request, 'user/adduser.html', {'cname': cname, 'message': message1, 'username': username, 'isadmin':isadmin})
+            return render(request, 'user/adduser.html', {'cname': cname, 'localmessage': message1, 'username': username, 'isadmin':isadmin})
     else:
         if privlege == 2:  # 权限为管理员
             return render(request, 'user/adduser.html', locals())
@@ -259,13 +259,13 @@ def user_edit(request):  # 修改用户
 登陆地址: %s
 帐号资料修改成功""" % (username, '******', URL)
                     send_mail_mod(u"帐号资料修改成功", msg, str(email))
-                dm = {'message': '更新成功'}
+                dm = {'localmessage': '更新成功'}
                 return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
         else:
             if result:
-                dm = {'message': '更新成功'}
+                dm = {'localmessage': '更新成功'}
                 return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
-        dm = {'message': '更新失败'}
+        dm = {'localmessage': '更新失败'}
         return render(request, 'user/eidtuser.html', dict(dinfo.items() + dm.items()))
 
 
@@ -475,9 +475,9 @@ def privilege_add(request):
             else:
                 result = addpercode(pcode, pname)
                 if result:
-                    message = "添加成功"
+                    localmessage = "添加成功"
                 else:
-                    message = "添加失败"
+                    localmessage = "添加失败"
                 return render(request, 'user/percodeadd.html', locals())
     else:
         return HttpResponse(message % '你没有模块权限')
@@ -593,9 +593,9 @@ def privilege_edit(request):
         pname = request.POST['pname'].encode('utf-8')
         result = update_perone(id, pcode, pname)
         if result:
-            message = "更新成功"
+            localmessage = "更新成功"
         else:
-            message = "更新失败"
+            localmessage = "更新失败"
         return render(request, 'user/editper.html', locals())
     return HttpResponse(message % '你没有操作此项目的权限')
 
@@ -625,9 +625,9 @@ def privilege_grant(request):
             else:
                 result = add_user_per(user, pcode, comment)
                 if result:
-                    message = "添加成功"
+                    localmessage = "添加成功"
                 else:
-                    message = "添加失败"
+                    localmessage = "添加失败"
                 try:
                     user = admin.objects.all().values('username')  # 获取用户数据
                     percode = per_code.objects.all().values('Per_code', 'Per_name')  # 获取权限数据
@@ -760,9 +760,9 @@ def privilege_grantedit(request):
         comment = request.POST['comment'].encode('utf-8')
         result = update_user_per(id, peruser, pcode, comment)
         if result:
-            message = "更新成功"
+            localmessage = "更新成功"
         else:
-            message = "更新失败"
+            localmessage = "更新失败"
         try:
             percode = per_code.objects.all().values('Per_code', 'Per_name')  # 获取权限数据
         except:

@@ -100,9 +100,9 @@
                     </div>
                     <div class="ibox-content">
                         <form method="post" id="userForm" class="form-horizontal" action="">
-                            {% if message %}
+                            {% if localmessage %}
                                 <div class="alert alert-success">
-                                    权限修改结果 : {{ message }}<br />
+                                    权限修改结果 : {{ localmessage }}<br />
                             </div>
                             {% endif %}
                             <span style="display:none"><input type="text" name='id' class="form-control" value="{{ id }}"></span>

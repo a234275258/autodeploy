@@ -28,15 +28,19 @@ localtype = config.get('local', 'localtype')
 etcdip = config.get('etcd', 'etcdip')  # etcd ip地址
 etcdport = config.get('etcd', 'etcdport')  # etcd 端口
 
-nginxmb = config.get('mb', 'nginxmb')  # nginx模板文件
+httpmb = config.get('mb', 'httpmb')  # nginx http代理模板文件
 
-nginxconf = config.get('local', 'nginxconf')  # nginx配制文件路径
+tcpmb = config.get('mb', 'tcpmb')  # nginx tcp代理模板文件
 
-upstreamip = config.get('upstreamip', 'ip').split(',')
+nginxhttpconf = config.get('local', 'nginxhttpconf')  # nginx http代理配制文件路径
+
+nginxtcpconf = config.get('local', 'nginxtcpconf')  # nginx tcp代理配制文件路径
+
+nginxscript = config.get('nginxscript', 'nginxscript')  # nginx 启动脚本
 
 
 # 添加upstream,入参为基本upstream配置，upstream IP地址列表个数，端口，返回处理好的列表
-def addupstream(basechar, upstreamiplen, port):
+def addupstream(basechar, upstreamiplen, port, upstreamip):
     upstreamlist = []
     for i in range(upstreamiplen):
         tempstr = str(basechar).replace("15105", str(port))
@@ -49,31 +53,43 @@ def addupstream(basechar, upstreamiplen, port):
 def checkport(filename, port):
     f = open(filename, 'r+')
     content = f.readlines()
+    f.close()
     for i in range(len(content)):
-        if str(port) in content[i]:
+        if str(port) in content[i]:   # 如果想要判断严格，可以再加Listen in
             return 1
     return 0
 
 
-# 处理nginx部署，传参项目名，端口， 返回值为0或部署日志
-def nginxhander(pjname, port):
-    filename = nginxconf + '/' + pjname + '.conf'
-    if os.path.exists(filename):
-        result = checkport(filename, port)
+# 处理nginx部署，传参项目名，端口，代理协议，后端代理 返回值为0或部署日志
+def nginxhander(pjname, port, agentxy, nodem):
+    if agentxy == "http":
+        filename = nginxhttpconf + '/' + pjname + '.conf'
+        if os.path.exists(nginxtcpconf + '/' + pjname + '.conf'):  # 项目以前是tcp代理,这次为http
+            os.remove(nginxtcpconf + '/' + pjname + '.conf')  # 删除文件
+    else:
+        filename = nginxtcpconf + '/' + pjname + '.conf'
+        if os.path.exists(nginxhttpconf + '/' + pjname + '.conf'):  # 项目以前是http代理,这次为tcp
+            os.remove(nginxhttpconf + '/' + pjname + '.conf')  # 删除文件
+    if os.path.exists(filename):  # 如果配置文件已存在
+        result = checkport(filename, port)   # 检测以前的端口是不是跟现有的端口一样，如果一样就不重新部署
         if not result:
-            return nginxdeploy(filename, port)  # 重新部署
+            return nginxdeploy(filename, port, agentxy, nodem)  # 重新部署
         else:
             return 0
     else:
-        return nginxdeploy(filename, port)
+        return nginxdeploy(filename, port, agentxy, nodem)
 
 
-def nginxdeploy(filename, port):  # 处理nginx部署，传入用户名，端口
-    nginxmbfile = os.path.join(BASE_DIR, nginxmb)
-    nginxmbtemp = filename
-    shutil.copyfile(nginxmbfile, nginxmbtemp)  # 复制文件
-    f = open(nginxmbtemp, 'r+')  # 读取文件内容
-    upstreamiplen = len(upstreamip)
+def nginxdeploy(filename, port, agentxy, nodem):  # 处理nginx部署，传入文件名，端口, 协议，后端负载服务器
+    if agentxy == "tcp":
+        mbfile = os.path.join(BASE_DIR, "tcpmb.conf")
+    else:
+        mbfile = os.path.join(BASE_DIR, "httpmb.conf")
+    httpmbtemp = filename
+    shutil.copyfile(mbfile, httpmbtemp)  # 复制文件
+    f = open(httpmbtemp, 'r+')  # 读取文件内容
+    nodemtemp = nodem.split('|')  # 把后端负载机器列表使用|分开并组成列表
+    upstreamiplen = len(nodemtemp)
     context = f.readlines()
     f.close()
     upstreamconf = ""  # upstream配置
@@ -85,19 +101,18 @@ def nginxdeploy(filename, port):  # 处理nginx部署，传入用户名，端口
             upstreamindex = i
         if re.search("15105", context[i]):
             context[i] = str(context[i]).replace("15105", str(port))  # 替换端口
-    upstreamlist = addupstream(upstreamconf, upstreamiplen, port)  # 返回处理好的upstream列表
+    upstreamlist = addupstream(upstreamconf, upstreamiplen, port, nodemtemp)  # 返回处理好的upstream列表
     context.remove(context[upstreamindex])  # 先移除列表中已有的
     for i in upstreamlist:  # 把处理好的列表插入到content列表中
         context.insert(upstreamindex, i)
         upstreamindex = + 1
-    print context
-    f = open(nginxmbtemp, 'w+')  # 回写文件
+    f = open(httpmbtemp, 'w+')  # 回写文件
     f.writelines(context)
     f.close()
 
-    stat, res = commands.getstatusoutput("/etc/init.d/nginx configtest")  # 检测配置文件是否正确
+    stat, res = commands.getstatusoutput("%s configtest" % nginxscript)  # 检测配置文件是否正确
     if "successful" in res:  # 如果检测成功
-        stat, res = commands.getstatusoutput("/etc/init.d/nginx reload")  # 重新加载配置文件
+        stat, res = commands.getstatusoutput("%s reload" % nginxscript)  # 重新加载配置文件
         return res
     else:
         return res
@@ -212,15 +227,30 @@ def getsysteminfo(key, client):
                 container, updatedate)
         try:
             client.set(key, value)
-            logger.info("=" * 50)
-            logger.info(u"线程设置键%s，值%s成功" % (key, value))
-            logger.info("=" * 50)
+            # logger.info("=" * 50)
+            # logger.info(u"线程设置键%s，值%s成功" % (key, value))
+            # logger.info("=" * 50)
         except:
-            logger.error("=" * 50)
-            logger.error(u"线程设置键%s，值%s失败" %(key, value))
-            logger.error("=" * 50)
+            pass
+            # logger.error("=" * 50)
+            # logger.error(u"线程设置键%s，值%s失败" %(key, value))
+            # logger.error("=" * 50)
         time.sleep(5)  # 每隔5秒收集一次
 
+
+def removeproj(pjname):  # 删除模块的反向代理,返回执行结果
+    for i in [nginxhttpconf, nginxhttpconf]:  # 遍历这两个目录，如发现有项目名开头的配置文件，就移除
+        for j in [pjname, "%s-web" % pjname]: # rpc或web项目
+            filename = "%s/%s.conf" %(i, j)
+            if os.path.exists(filename):  # 如果配置文件已存在
+                os.remove(filename)
+                stat, res = commands.getstatusoutput("%s configtest" % nginxscript)  # 检测配置文件是否正确
+                if "successful" in res:  # 如果检测成功
+                    stat, res = commands.getstatusoutput("%s reload" % nginxscript)  # 重新加载配置文件
+                    return res
+                else:
+                    return res
+    return 0
 
 if __name__ == "__main__":
     result = initetcd()  # 初始化etcd
@@ -242,26 +272,43 @@ if __name__ == "__main__":
             result = client.read(basekey)
             for i in result.children:
                 if "deploy" in i.key:  # 部署
-                    print i.value
+                    logger.info("-" * 50)
+                    logger.info(u"开始任务，任务信息：%s" % str(i.value))
                     deployvalue = str(i.value)
                     deployvalue = eval(deployvalue)  # 把获取的json字符转换成字典
-                    pjname = deployvalue.get("pjname")
-                    port = deployvalue.get("port")
-                    logger.info("=======================================")
-                    logger.info("开始部署项目名%s,端口为%s的项目" %(pjname, port))
-                    log = nginxhander(pjname, port)
-                    # print log
-                    chuid = str(i.key).split("deploy-")[1]  # 取uuid
-                    key = basekey + "/nginxlog-" + chuid
-                    if log:  # 如果有返回日志
-                        client.set(key, log)
-                    else:
-                        client.set(key, '项目%s已经在nginx上有部署' % pjname)
-                    time.sleep(2)
-                    stat, res = commands.getstatusoutput("/usr/sbin/ss -tna | grep %s" % port)  # 端口是否有监听
-                    logger.info("项目端口%s监听状态%s" %(port, res))
-                    logger.info("项目名%s,端口为%s部署执行完成" % (pjname, port))
-                    logger.info("=======================================")
+                    pjname = str(deployvalue.get("pjname")).split('_')[0]  # 获取项目名
+                    enableweb = int(deployvalue.get("enableweb"))  # 是否启用web
+                    hander = deployvalue.get("hander")  # 控制字符
+                    agentxy = deployvalue.get("agentxy")  # 代理协议
+                    nodem = deployvalue.get("nodem")  # 后端负载服务器，使用|隔开
+                    if hander == "remove":  # 控制字符为删除 
+                        handermessage = removeproj(pjname)  # 删除项目反向代理
+                        chuid = str(i.key).split("deploy-")[1]  # 取uuid
+                        key = basekey + "/nginxlog-" + chuid
+                        if handermessage:
+                            client.set(key, handermessage)
+                        else:
+                            client.set(key, '项目%s没有开启反向代理' % pjname)
+                    else:  # 新增或修改反向代理
+                        if enableweb:
+                            pjname = "%s-web" % pjname
+                        port = deployvalue.get("port")
+                        logger.info("=" * 50)
+                        logger.info("开始部署项目名%s,端口为%s的项目" %(pjname, port))
+                        log = nginxhander(pjname, port, agentxy, nodem)  # 参数为项目名、端口、代理协议、后端代理
+                        chuid = str(i.key).split("deploy-")[1]  # 取uuid
+                        key = basekey + "/nginxlog-" + chuid
+                        if log:  # 如果有返回日志
+                            client.set(key, log)
+                        else:
+                            client.set(key, '项目%s已经在nginx上有部署,并且代理端口也相同，无需重新部署。' % pjname)
+                        time.sleep(2)
+                        stat, res = commands.getstatusoutput("/usr/sbin/ss -tna | grep %s" % port)  # 端口是否有监听
+                        logger.info("项目端口%s监听状态%s" %(port, res))
+                        logger.info("项目名%s,端口为%s部署执行完成" % (pjname, port))
+                        logger.info("=" * 50)
+                    logger.info(u"任务结束，任务信息：%s" % str(i.value))
+                    logger.info("-" * 50)
                     client.delete(i.key)  # 删除部署完成的键值
             time.sleep(2)  # 每隔2秒重试一次
     except Exception, e:

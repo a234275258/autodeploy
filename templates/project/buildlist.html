@@ -101,8 +101,8 @@
 
                 <div class="ibox-content">
                     <div class="">
-                        <a href="/project/buildadd/" class="btn btn-sm btn-primary "> 添加项目 </a>
-                        <a id="del_btn" class="btn btn-sm btn-danger "> 删除项目 </a>
+                        <a href="/project/buildadd/" class="btn btn-sm btn-primary "> 添加构建 </a>
+                        <a id="del_btn" class="btn btn-sm btn-danger "> 删除构建 </a>
                         <form id="search_form" method="get" action="" class="pull-right mail-search">
                             <div class="input-group">
                                 <input type="text" class="form-control input-sm" id="search_input" name="keyword" placeholder="Search">
@@ -145,13 +145,17 @@
 
                                 <td class="text-center" title="{{ i.builddate }}"> {{ i.builddate|date:"Y-m-d H:i:s"  }} </td>
                                 <td class="text-center" title="{{ i.success }}">
-                                    {% if i.success %}
+                                    {% if i.success == 1 %}
                                        成功
-                                    {% else %}
+                                    {% endif %}
+                                    {% if i.success == 0 %}
                                     <font color="red">失败</font>
                                     {% endif %}
+                                    {% if i.success == 2 %}
+                                    <font color="red">构建中</font>
+                                    {% endif %}
                                 </td>
-                                <td class="text-center" title="{{ i.file  }}"> {{ i.file  }} </td>
+                                <td class="text-center" title="{{ i.file  }}"> R:{{ i.file  }}<br>W: {{ i.fileweb  }} </td>
                                 <td class="text-center" title="{{ i.svnversion }}"> {{ i.svnversion }} </td>
                                 <td class="text-center" title="{{ i.username }}"> {{ i.username }} </td>
                                 <td class="text-center" title="构建log">
